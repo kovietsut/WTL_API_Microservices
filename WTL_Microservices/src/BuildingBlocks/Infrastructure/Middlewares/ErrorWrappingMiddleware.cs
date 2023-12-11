@@ -41,8 +41,7 @@ namespace Infrastructure.Middlewares
                 context.Response.StatusCode == StatusCodes.Status403Forbidden)
             {
                 context.Response.ContentType = "application/json";
-
-                var response = new ApiErrorResult<bool>("Unauthorized");
+                var response = JsonUtil.Error(null, null, "Unauthorized");
 
                 var json = JsonSerializer.Serialize(response);
 
@@ -56,7 +55,7 @@ namespace Infrastructure.Middlewares
             {
                 context.Response.ContentType = "application/json";
 
-                var response = new ApiErrorResult<bool>(errorMsg);
+                var response = JsonUtil.Error(null, null, errorMsg);
 
                 var json = JsonSerializer.Serialize(response);
 

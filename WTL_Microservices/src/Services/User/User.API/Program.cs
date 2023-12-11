@@ -1,5 +1,4 @@
 using Serilog;
-using User.API;
 using User.API.Extensions;
 using User.API.Persistence;
 
@@ -11,7 +10,6 @@ try
 {
     builder.Host.AddAppConfigurations();
     // Add services to the container.
-    builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new MappingProfile()));
     builder.Services.AddInfrastructure();
     builder.Services.AddApplicationServices();
     builder.Services.ConfigureHealthChecks();

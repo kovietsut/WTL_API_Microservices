@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Shared.DTOs.Authentication;
+using Shared.SeedWork;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using User.API.Repositories.Interfaces;
@@ -30,9 +30,9 @@ namespace User.API.Controllers
         public async Task<IActionResult> SignUp([FromBody] SignUpDto model)
         {
             var userEntity = await _iUserRepository.GetUserByEmail(model.Email);
-            if (userEntity != null) return BadRequest($"Email {userEntity.Email} is existed");
+            if (userEntity != null) return JsonUtil.Error(StatusCodes.Status404NotFound, null, $"Email {userEntity.Email} is existed");
             var response = _iAuthRepository.SignUp(model);
-            return Ok(response.Result);
+            return JsonUtil.Success(response.Result);
         }
 
         [HttpPost("sign-in")]
@@ -46,12 +46,12 @@ namespace User.API.Controllers
                 UserId = user.Id,
                 Email = user.Email,
             };
-            return Ok(new
+            return JsonUtil.Success(new
             {
                 UserId = user.Id,
                 user.Email,
                 user.FullName,
-                TokenData = _iTokenRepository.GenerateToken(userToken)
+                TokenData = _iTokenRepository.GenerateToken(userToken).Result
             });
         }
 
@@ -122,7 +122,7 @@ namespace User.API.Controllers
                     Email = user.Email,
                 };
                 var token = await _iTokenRepository.GenerateToken(userModel);
-                return Ok(token);
+                return JsonUtil.Success(token);
             }
             catch (Exception e)
             {
