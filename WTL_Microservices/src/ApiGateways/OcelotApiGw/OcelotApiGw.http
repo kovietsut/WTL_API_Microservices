@@ -1,6 +1,6 @@
-@OcelotApiGw_HostAddress = http://localhost:5266
+@KongApiGw_HostAddress = http://localhost:5266
 
-GET {{OcelotApiGw_HostAddress}}/weatherforecast/
+GET {{KongApiGw_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###

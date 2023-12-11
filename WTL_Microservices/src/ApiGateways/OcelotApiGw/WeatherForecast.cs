@@ -1,4 +1,4 @@
-namespace OcelotApiGw
+namespace KongApiGw
 {
     public class WeatherForecast
     {

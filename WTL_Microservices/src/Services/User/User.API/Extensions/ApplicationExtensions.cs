@@ -16,11 +16,9 @@ namespace User.API.Extensions
             });
             app.UseMiddleware<ErrorWrappingMiddleware>();
             app.UseAuthentication();
-            app.UseRouting();
-            
-            // app.UseHttpsRedirection(); //for production only
             app.UseAuthorization();
-
+            app.UseRouting();
+            // app.UseHttpsRedirection(); //for production only
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHealthChecks("/hc", new HealthCheckOptions()

@@ -1,4 +1,5 @@
 using Serilog;
+using User.API;
 using User.API.Extensions;
 using User.API.Persistence;
 
@@ -10,9 +11,12 @@ try
 {
     builder.Host.AddAppConfigurations();
     // Add services to the container.
+    builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new MappingProfile()));
     builder.Services.AddInfrastructure();
     builder.Services.AddApplicationServices();
     builder.Services.ConfigureHealthChecks();
+    builder.Services.ConfigureSwagger();
+    builder.Services.ConfigureJWT(builder.Configuration);
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);

@@ -63,7 +63,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Translation.API", "src\Serv
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "User.API", "src\Services\User\User.API\User.API.csproj", "{F899066E-D6D8-4AAC-8312-83940E506624}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OcelotApiGw", "src\ApiGateways\OcelotApiGw\OcelotApiGw.csproj", "{D163BF38-64C0-42B9-8916-2927B124C213}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KongApiGw", "src\ApiGateways\OcelotApiGw\KongApiGw.csproj", "{D163BF38-64C0-42B9-8916-2927B124C213}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Saga.Orchestrator", "src\Saga.Orchestrator\Saga.Orchestrator\Saga.Orchestrator.csproj", "{F388C202-CD00-4DFC-B6CE-DDD01862FC38}"
 EndProject
