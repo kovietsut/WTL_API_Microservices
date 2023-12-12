@@ -15,9 +15,22 @@ namespace User.API.Repositories
 
         public Task<UserEntity> GetUserByEmail(string email) =>
             FindByCondition(x => x.Email.Equals(email)).SingleOrDefaultAsync();
-
+            
         public Task<UserEntity> GetUserById(long id) =>
             FindByCondition(x => x.Id == id).SingleOrDefaultAsync();
 
+        public Task CreateUserAsync(UserEntity user) => CreateAsync(user);
+
+        public Task UpdateUserAsync(UserEntity user) => UpdateAsync(user);
+
+        public async Task DeleteUserAsync(long id)
+        {
+            var user = await GetUserById(id);
+            if(user != null)
+            {
+                user.IsEnabled = false;
+                await UpdateAsync(user);
+            }
+        }
     }
 }

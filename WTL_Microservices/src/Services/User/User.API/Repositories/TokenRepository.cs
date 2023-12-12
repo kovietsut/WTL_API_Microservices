@@ -30,10 +30,10 @@ namespace User.API.Repositories
         public Task<Token> GetTokenByRefreshToken(string refreshToken) => 
             FindByCondition(x => x.RefreshToken.Equals(refreshToken)).SingleOrDefaultAsync();
 
-        public string CreateToken(int userId)
+        public async Task<string> CreateToken(int userId)
         {
             var signingCredentials = GetSigningCredentials();
-            var claims = GetClaims(userId);
+            var claims = await GetClaims(userId);
             var token = GenerateTokenOptions(signingCredentials, claims);
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
@@ -50,14 +50,14 @@ namespace User.API.Repositories
             return token;
         }
 
-        private List<Claim> GetClaims(int userId)
+        private async Task<List<Claim>> GetClaims(int userId)
         {
-            var currentUser = _iUserRepository.GetUserById(userId);
-            var role = currentUser.Result.RoleId;
+            var currentUser = await _iUserRepository.GetUserById(userId);
+            var role = currentUser.RoleId;
             var claims = new List<Claim>
         {
             new("id", currentUser.Id.ToString()),
-            new("email", currentUser.Result.Email),
+            new("email", currentUser.Email),
             new("role", role.ToString()),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString()),
@@ -117,8 +117,8 @@ namespace User.API.Repositories
 
         public async Task<TokenDto> GenerateToken(UserTokenDto model)
         {
-            var currentUser = _iUserRepository.GetUserByEmail(model.Email);
-            var role = currentUser.Result.RoleId;
+            var currentUser = await _iUserRepository.GetUserByEmail(model.Email);
+            var role = currentUser.RoleId;
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var secretKeyBytes = Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]);
             var tokenDescription = new SecurityTokenDescriptor
@@ -130,7 +130,7 @@ namespace User.API.Repositories
                     new Claim(JwtRegisteredClaimNames.Sub, currentUser.Id.ToString()),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim("Id", currentUser.Id.ToString()),
-                    new Claim("Email", currentUser.Result.Email.ToString()),
+                    new Claim("Email", currentUser.Email.ToString()),
                     new Claim("Role", role.ToString()),
                 }),
                 Expires = DateTime.Now.AddDays(7),

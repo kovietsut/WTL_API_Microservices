@@ -8,6 +8,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Shared.Configurations;
+using Shared.DTOs;
 using System.Text;
 using User.API.Persistence;
 using User.API.Repositories;
@@ -98,6 +99,11 @@ namespace User.API.Extensions
                         builder.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName));
             });
             return services;
+        }
+
+        public static void ConfigureErrorCode(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<ErrorCode>(configuration.GetSection("ErrorCode"));
         }
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>

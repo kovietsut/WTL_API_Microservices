@@ -15,9 +15,9 @@ namespace User.API.Extensions
                 c.DisplayRequestDuration();
             });
             app.UseMiddleware<ErrorWrappingMiddleware>();
+            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseRouting();
             // app.UseHttpsRedirection(); //for production only
             app.UseEndpoints(endpoints =>
             {

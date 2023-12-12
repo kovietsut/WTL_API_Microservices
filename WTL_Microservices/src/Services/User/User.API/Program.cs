@@ -14,6 +14,7 @@ try
     builder.Services.AddApplicationServices();
     builder.Services.ConfigureHealthChecks();
     builder.Services.ConfigureSwagger();
+    builder.Services.ConfigureErrorCode(builder.Configuration);
     builder.Services.ConfigureJWT(builder.Configuration);
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
