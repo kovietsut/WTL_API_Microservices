@@ -1,18 +1,14 @@
 ﻿using FluentValidation;
-using Microsoft.AspNetCore.Components.Forms;
 using Shared.Common;
-using Shared.DTOs.Authentication;
 using Shared.SeedWork;
 using System.ComponentModel.DataAnnotations;
 
 namespace Shared.DTOs.User
 {
-    public class CreateUserDto
+    public class UpdateUserDto
     {
         [Required]
         public string Email { get; set; }
-        [Required]
-        public string Password { get; set; }
         [Required]
         public long RoleId { get; set; }
         public string? FullName { get; set; }
@@ -21,18 +17,15 @@ namespace Shared.DTOs.User
         public string? Gender { get; set; }
     }
 
-    public class CreateUserValidator : AbstractValidator<CreateUserDto>
+    public class UpdateUserValidator : AbstractValidator<UpdateUserDto>
     {
-        public CreateUserValidator()
+        public UpdateUserValidator()
         {
             RuleFor(x => x.RoleId).NotEmpty().WithMessage("RoleId is required")
                 .Must((roleId) => CheckValidationHelper.IsIntOrLong(roleId));
             RuleFor(x => x.Email).NotNull().WithMessage("Email is required")
                 .NotEmpty().WithMessage("Email not empty")
                 .EmailAddress().WithMessage("Invalid email address");
-            RuleFor(x => x.Password).NotNull().WithMessage("Password is required")
-                .NotEmpty().WithMessage("Password cannot be empty")
-                .MinimumLength(8).WithMessage("Password must be at least 8 character");
             RuleFor(x => x.PhoneNumber).NotNull().WithMessage("Phone number is required")
                 .NotEmpty().WithMessage("Phone number cannot be empty")
                 .Matches(RegexHelper.PhoneNumberRegexVietNam).WithMessage("Invalid phone number format");
