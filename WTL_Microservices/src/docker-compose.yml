@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  #database section
+  userdb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+
+  #infrastructure section
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+
+  portainer:
+    image: portainer/portainer-ce
+
+  #microservices api section
+  user.api:
+    image: ${DOCKER_REGISTRY-}user-api:${PLATFORM:-linux}-${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Services/User/User.API/Dockerfile
+
+#network section
+networks:
+  default:
+    name: wtl_microservices
+    driver: bridge
+
+#volumes section
+volumes:
+  sqlserver_data:
+    name: sqlserver_data
+  rabbitmq_data:
+    name: rabbitmq_data
+  portainer_data:
+    name: portainer_data

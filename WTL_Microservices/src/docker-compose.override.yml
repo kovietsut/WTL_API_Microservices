@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  #userdb: sql server
+  userdb:
+    container_name: userdb
+    environment:
+      SA_PASSWORD: "Magicgame123456"
+      ACCEPT_EULA: "Y"
+    restart: always
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    ports:
+      - "1435:1433"
+  #infrastructure section
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    hostname: rabbitmq
+
+  portainer:
+    container_name: portainer
+    restart: always
+    ports:
+      - "8080:8000"
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+  #microservices api sections
+  user.api:
+    container_name: user.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - "DatabaseSettings:ConnectionString=Server=userdb;Database=UserDb;User Id=sa;Password=Magicgame123456;Multipleactiveresultsets=true;TrustServerCertificate=true"
+    depends_on:
+      - userdb
+      - rabbitmq
+    ports:
+      - "6001:80"
+    restart: always
