@@ -53,25 +53,21 @@ namespace User.API.Persistence
                 await _context.Roles.AddRangeAsync(
                     new Role
                     {
-                        Id = 1,
                         IsEnabled = true,
                         Name = "ADMIN"
                     },
                     new Role
                     {
-                        Id = 2,
                         IsEnabled = true,
                         Name = "AUTHOR"
                     },
                     new Role
                     {
-                        Id = 3,
                         IsEnabled = true,
                         Name = "USER"
                     },
                     new Role
                     {
-                        Id = 4,
                         IsEnabled = true,
                         Name = "TRANSLATOR"
                     });
@@ -83,7 +79,6 @@ namespace User.API.Persistence
                 await _context.Users.AddRangeAsync(
                     new UserEntity
                     {
-                        Id = 1,
                         IsEnabled = true,
                         RoleId = 1,
                         Email = "nguyentienphat9x@gmail.com",
@@ -104,7 +99,6 @@ namespace User.API.Persistence
                 await _context.Tokens.AddRangeAsync(
                     new Token
                     {
-                        Id = 1, 
                         IsEnabled = true,
                         UserId = 1,
                         AccessToken = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5ndXllbnRpZW5waGF0OXhAZ21haWwuY29tIiwic3ViIjoiMSIsImp0aSI6IjJkNTM4Njk4LTFiOGQtNDBiYy1hMmI1LWFkYTRiM2RmNDU4MiIsIklkIjoiMSIsIkVtYWlsIjoibmd1eWVudGllbnBoYXQ5eEBnbWFpbC5jb20iLCJSb2xlIjoiMSIsIm5iZiI6MTY5OTA4NDIyNSwiZXhwIjoxNjk5Njg5MDI1LCJpYXQiOjE2OTkwODQyMjUsImlzcyI6Iklzc3VlciIsImF1ZCI6Iklzc3VlciJ9._c3RxdDeJgva4lK6U_30XFxaE_J95BFR1RQvu098qsN_P4-18TPt4t946aR7RcH5qtxPS9jEPZc87apZ8Kbt_Q",
