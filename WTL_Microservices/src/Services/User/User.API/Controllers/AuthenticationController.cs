@@ -49,8 +49,12 @@ namespace User.API.Controllers
         public async Task<IActionResult> SignIn([FromBody] SignInDto model)
         {
             var user = await _iUserRepository.GetUserByEmail(model.Email);
+            if (user == null)
+            {
+                return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Incorrect Username or Password");
+            }
             var checkPass = _iAuthRepository.CheckPassword(model, user.SecurityStamp);
-            if (user == null || checkPass != user.PasswordHash)
+            if (checkPass != user.PasswordHash)
             {
                 return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Incorrect Username or Password");
             }
