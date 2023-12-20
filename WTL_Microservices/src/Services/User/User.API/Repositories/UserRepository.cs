@@ -5,26 +5,27 @@ using User.API.Persistence;
 using User.API.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Shared.DTOs.User;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Shared.SeedWork;
 using Shared.DTOs;
 using Microsoft.Extensions.Options;
-using Shared.DTOs.Authentication;
 using FluentValidation;
+using Newtonsoft.Json;
 
 namespace User.API.Repositories
 {
     public class UserRepository : RepositoryBase<UserEntity, long, IdentityContext>, IUserRepository
     {
         private readonly IEncryptionRepository _iEncryptionRepository;
+        private readonly IRedisCacheRepository _iRedisCacheRepository;
         private readonly ErrorCode _errorCodes;
 
         public UserRepository(IdentityContext dbContext, IUnitOfWork<IdentityContext> unitOfWork, IEncryptionRepository iEncryptionRepository,
-            IOptions<ErrorCode> errorCodes) 
+            IRedisCacheRepository iRedisCacheRepository, IOptions<ErrorCode> errorCodes) 
             : base(dbContext, unitOfWork)
         {
             _iEncryptionRepository = iEncryptionRepository;
+            _iRedisCacheRepository = iRedisCacheRepository;
             _errorCodes = errorCodes.Value;
         }
 
@@ -60,6 +61,25 @@ namespace User.API.Repositories
             
         public Task<UserEntity> GetUserById(long id) =>
             FindByCondition(x => x.Id == id).SingleOrDefaultAsync();
+
+        public async Task<IActionResult> GetUser(long userId)
+        {
+            var key = $"/api/user/{userId}";
+            var cacheUser = await _iRedisCacheRepository.GetCachedResponseAsync(key);
+            if (!string.IsNullOrEmpty(cacheUser))
+            {
+                var response = JsonConvert.DeserializeObject<UserEntity>(cacheUser)!;
+                return JsonUtil.Success(response);
+            }
+            var user = await GetUserById(userId);
+            if (user == null)
+            {
+                return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "User does not exist");
+            }
+            // Store user to cache
+            await _iRedisCacheRepository.SetCachedResponseAsync(key, user);
+            return JsonUtil.Success(user);
+        }
 
         public async Task<IActionResult> CreateUserAsync(CreateUserDto model)
         {
@@ -107,6 +127,7 @@ namespace User.API.Repositories
         {
             try
             {
+                var key = $"/api/user/{userId}";
                 // Validator
                 var validator = new UpdateUserValidator();
                 var check = await validator.ValidateAsync(model);
@@ -138,6 +159,9 @@ namespace User.API.Repositories
                 currentUser.Address = model.Address != null ? model.Address.Trim() : model.Address;
                 currentUser.Gender = model.Gender != null ? model.Gender.Trim() : model.Gender;
                 await UpdateAsync(currentUser);
+                // Update cached
+                await _iRedisCacheRepository.RemoveCached(key);
+                await _iRedisCacheRepository.SetCachedResponseAsync(key, currentUser);
                 return JsonUtil.Success(currentUser.Id);
             }
             catch(Exception ex)

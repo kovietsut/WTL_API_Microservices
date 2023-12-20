@@ -10,6 +10,7 @@ namespace User.API.Repositories.Interfaces
         IActionResult GetList(int? pageNumber, int? pageSize, string? searchText, int? roleId);
         Task<UserEntity> GetUserByEmail(string email);
         Task<UserEntity> GetUserById(long id);
+        Task<IActionResult> GetUser(long userId);
         Task<IActionResult> CreateUserAsync(CreateUserDto model);
         Task<IActionResult> UpdateUserAsync(int userId, UpdateUserDto model);
         Task<IActionResult> DeleteUserAsync(long id);

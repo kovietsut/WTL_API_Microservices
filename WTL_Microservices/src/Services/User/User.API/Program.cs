@@ -10,8 +10,9 @@ try
 {
     builder.Host.AddAppConfigurations();
     // Add services to the container.
-    builder.Services.AddInfrastructure();
     builder.Services.AddApplicationServices();
+    builder.Services.AddInfrastructure();
+    builder.Services.ConfigureRedis();
     builder.Services.ConfigureHealthChecks();
     builder.Services.ConfigureSwagger();
     builder.Services.ConfigureErrorCode(builder.Configuration);

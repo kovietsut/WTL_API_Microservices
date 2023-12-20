@@ -12,6 +12,12 @@ services:
       - sqlserver_data:/var/opt/mssql
     ports:
       - "1435:1433"
+  #redisuserdb: redis
+  redisuserdb:
+    container_name: redisuserdb
+    restart: always
+    ports:
+      - "6379:6379"
   #infrastructure section
   rabbitmq:
     container_name: rabbitmq
@@ -27,7 +33,6 @@ services:
     container_name: portainer
     restart: always
     ports:
-      - "8080:8000"
       - "9000:9000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -39,6 +44,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=Server=userdb;Database=UserDb;User Id=sa;Password=Magicgame123456;Multipleactiveresultsets=true;TrustServerCertificate=true"
+      - "RedisSettings:ConnectionString=redisuserdb:6379"
     depends_on:
       - userdb
       - rabbitmq

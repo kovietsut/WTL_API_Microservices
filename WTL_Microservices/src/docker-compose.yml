@@ -5,6 +5,9 @@ services:
   userdb:
     image: mcr.microsoft.com/mssql/server:2019-latest
 
+  redisuserdb:
+    image: redis:alpine
+
   #infrastructure section
   rabbitmq:
     image: rabbitmq:3-management-alpine

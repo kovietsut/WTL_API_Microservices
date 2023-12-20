@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Shared.Configurations;
 using Shared.DTOs;
+using StackExchange.Redis;
 using System.Text;
 using User.API.Persistence;
 using User.API.Repositories;
@@ -61,19 +62,19 @@ namespace User.API.Extensions
                     Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
                 });
                 swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                {
-                    new OpenApiSecurityScheme
                     {
-                        Reference = new OpenApiReference
                         {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] { }
                         }
-                    },
-                    new string[] { }
-                }
-            });
+                    });
             });
         }
 
@@ -106,6 +107,17 @@ namespace User.API.Extensions
             services.Configure<ErrorCode>(configuration.GetSection("ErrorCode"));
         }
 
+        public static void ConfigureRedis(this IServiceCollection services)
+        {
+            var settings = services.GetOptions<RedisSettings>(nameof(RedisSettings));
+            if (string.IsNullOrEmpty(settings.ConnectionString))
+                throw new ArgumentNullException("Redis Connection string is not configured.");
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = settings.ConnectionString;
+            });
+        }
+
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>
         services.AddScoped<IdentityContextSeed>()
             .AddScoped(typeof(IRepositoryBase<,,>), typeof(RepositoryBase<,,>))
@@ -113,6 +125,7 @@ namespace User.API.Extensions
             .AddScoped<IEncryptionRepository, EncryptionRepository>()
             .AddScoped<IAuthenticationRepository, AuthenticationRepository>()
             .AddScoped<IUserRepository, UserRepository>()
-            .AddScoped<ITokenRepository, TokenRepository>();
+            .AddScoped<ITokenRepository, TokenRepository>()
+            .AddScoped<IRedisCacheRepository, RedisCacheRepository>();
     }
 }
