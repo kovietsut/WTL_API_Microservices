@@ -1,17 +1,40 @@
+using Manga.API.Extensions;
+using Manga.Infrastructure.Persistence;
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+Log.Information($"Start {builder.Environment.ApplicationName} up");
+try
+{
+    builder.Host.AddAppConfigurations();
+    // Add services to the container.
+    builder.Services.AddControllers();
+    builder.Services.AddApplicationServices();
+    builder.Services.ConfigureHealthChecks();
+    builder.Services.ConfigureSwagger();
+    builder.Services.AddInfrastructure();
 
-builder.Services.AddControllers();
+    var app = builder.Build();
+    app.UseInfrastructure();
 
-var app = builder.Build();
+    using (var scope = app.Services.CreateScope())
+    {
+        var contextSeed = scope.ServiceProvider.GetRequiredService<MangaContextSeed>();
+        await contextSeed.InitialiseAsync();
+        await contextSeed.SeedAsync();
+    }
+    app.Run();
+}
+catch (Exception ex)
+{
+    string type = ex.GetType().Name;
+    if (type.Equals("StopTheHostException", StringComparison.Ordinal)) throw;
 
-// Configure the HTTP request pipeline.
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+    Log.Fatal(ex, $"Unhandled exception: {ex.Message}");
+}
+finally
+{
+    Log.Information($"Shut down {builder.Environment.ApplicationName} complete");
+    Log.CloseAndFlush();
+}

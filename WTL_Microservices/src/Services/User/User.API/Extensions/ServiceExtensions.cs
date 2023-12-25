@@ -9,7 +9,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Shared.Configurations;
 using Shared.DTOs;
-using StackExchange.Redis;
 using System.Text;
 using User.API.Persistence;
 using User.API.Repositories;

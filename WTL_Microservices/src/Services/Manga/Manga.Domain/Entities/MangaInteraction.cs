@@ -1,0 +1,20 @@
+﻿using Contracts.Domains;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Manga.Domain.Entities
+{
+    public class MangaInteraction : EntityBase<long>
+    {
+        public long? UserId { get; set; }
+
+        public long? MangaId { get; set; }
+
+        public string? InteractionType { get; set; }
+
+        public virtual Manga? Manga { get; set; }
+    }
+}
