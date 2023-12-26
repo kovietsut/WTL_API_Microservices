@@ -7,12 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Common\Behaviours\" />
-    <Folder Include="Common\Exceptions\" />
-    <Folder Include="Common\Interfaces\" />
     <Folder Include="Features\Mangas\Commands\" />
-    <Folder Include="Features\Mangas\Common\" />
-    <Folder Include="Features\Mangas\Queries\" />
+    <Folder Include="Features\Chapters\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="MediatR" Version="12.2.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,7 +21,7 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\EventBus\EventBus.Messages\EventBus.Messages.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Shared\Shared.csproj" />
-    <ProjectReference Include="..\Manga.Domain\Manga.Domain.csproj" />
+    <ProjectReference Include="..\Manga.Infrastructure\Manga.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

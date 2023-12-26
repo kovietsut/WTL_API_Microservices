@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 
 namespace User.API.Repositories
 {
-    public class UserRepository : RepositoryBase<UserEntity, long, IdentityContext>, IUserRepository
+    public class UserRepository: RepositoryBase<UserEntity, long, IdentityContext>, IUserRepository
     {
         private readonly IEncryptionRepository _iEncryptionRepository;
         private readonly IRedisCacheRepository _iRedisCacheRepository;

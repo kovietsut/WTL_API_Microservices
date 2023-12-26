@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Manga.Domain.Entities
+namespace Manga.Infrastructure.Entities
 {
-    public class ChapterComment: EntityBase<long>
+    public class ChapterImage : EntityBase<long>
     {
         public DateTimeOffset? CreatedAt { get; set; }
 
@@ -19,14 +19,14 @@ namespace Manga.Domain.Entities
 
         public long? ChapterId { get; set; }
 
-        public long? ParentCommentId { get; set; }
+        public string? Name { get; set; }
 
-        public string? Text { get; set; }
+        public string? FileSize { get; set; }
+
+        public string? MimeType { get; set; }
+
+        public string? FilePath { get; set; }
 
         public virtual Chapter? Chapter { get; set; }
-
-        public virtual ICollection<ChapterComment> InverseParentComment { get; set; } = new List<ChapterComment>();
-
-        public virtual ChapterComment? ParentComment { get; set; }
     }
 }

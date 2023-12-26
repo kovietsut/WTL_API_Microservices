@@ -1,6 +1,6 @@
-﻿using Manga.Domain.Entities;
+﻿using Manga.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
-using MangaEntity = Manga.Domain.Entities.Manga;
+using MangaEntity = Manga.Infrastructure.Entities.Manga;
 using ILogger = Serilog.ILogger;
 
 namespace Manga.Infrastructure.Persistence

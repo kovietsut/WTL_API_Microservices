@@ -9,10 +9,6 @@
   <ItemGroup>
     <Folder Include="Common\Events\" />
     <Folder Include="Common\SeedWork\" />
-    <Folder Include="Configurations\" />
-    <Folder Include="Services\" />
-    <Folder Include="ScheduleJobs\" />
-    <Folder Include="Sagas\" />
   </ItemGroup>
 
   <ItemGroup>

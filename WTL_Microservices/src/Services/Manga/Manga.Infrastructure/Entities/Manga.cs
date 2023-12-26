@@ -1,7 +1,7 @@
 ﻿using Contracts.Domains;
 using Shared.Enums;
 
-namespace Manga.Domain.Entities
+namespace Manga.Infrastructure.Entities
 {
     public class Manga: EntityBase<long>
     {

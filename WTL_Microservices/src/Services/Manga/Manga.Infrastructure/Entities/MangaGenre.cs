@@ -1,6 +1,6 @@
 ﻿using Contracts.Domains;
 
-namespace Manga.Domain.Entities
+namespace Manga.Infrastructure.Entities
 {
     public class MangaGenre : EntityBase<long>
     {

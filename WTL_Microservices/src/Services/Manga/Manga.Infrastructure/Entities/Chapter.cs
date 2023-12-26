@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Manga.Domain.Entities
+namespace Manga.Infrastructure.Entities
 {
     public class Chapter : EntityBase<long>
     {

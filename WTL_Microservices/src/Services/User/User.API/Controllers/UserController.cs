@@ -1,12 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Shared.DTOs.RedisCache;
 using Shared.DTOs.User;
-using Shared.SeedWork;
-using StackExchange.Redis;
 using User.API.Repositories.Interfaces;
-using UserEntity = User.API.Entities.User;
 
 namespace User.API.Controllers
 {

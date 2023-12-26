@@ -13,11 +13,10 @@ try
     builder.Services.AddApplicationServices();
     builder.Services.ConfigureHealthChecks();
     builder.Services.ConfigureSwagger();
+    builder.Services.ConfigureErrorCode(builder.Configuration);
     builder.Services.AddInfrastructure();
-
     var app = builder.Build();
     app.UseInfrastructure();
-
     using (var scope = app.Services.CreateScope())
     {
         var contextSeed = scope.ServiceProvider.GetRequiredService<MangaContextSeed>();

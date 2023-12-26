@@ -1,5 +1,5 @@
-﻿using Manga.Domain.Entities;
-using MangaEntity = Manga.Domain.Entities.Manga;
+﻿using Manga.Infrastructure.Entities;
+using MangaEntity = Manga.Infrastructure.Entities.Manga;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Shared.Enums;

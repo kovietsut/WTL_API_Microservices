@@ -8,11 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Common\Models\" />
-    <Folder Include="Configurations\" />
-    <Folder Include="Identity\" />
-    <Folder Include="Services\" />
-    <Folder Include="ScheduleJobs\" />
-    <Folder Include="Policies\" />
   </ItemGroup>
 
   <ItemGroup>

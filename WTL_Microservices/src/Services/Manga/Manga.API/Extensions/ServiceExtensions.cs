@@ -7,6 +7,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Shared.Configurations;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Manga.Application.Common.Behaviours;
+using MediatR;
+using System.Net.NetworkInformation;
+using System.Reflection;
+using Manga.Application.Common.Repositories.Interfaces;
+using Manga.Application.Common.Repositories;
+using Manga.Application.Features.Mangas.Queries;
+using Microsoft.AspNetCore.Mvc;
+using Shared.DTOs;
 
 namespace Manga.API.Extensions
 {
@@ -34,6 +43,11 @@ namespace Manga.API.Extensions
                 .AddSqlServer(databaseSettings.ConnectionString,
                     name: "SqlServer Health",
                     failureStatus: HealthStatus.Degraded);
+        }
+
+        public static void ConfigureErrorCode(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<ErrorCode>(configuration.GetSection("ErrorCode"));
         }
 
         public static void ConfigureSwagger(this IServiceCollection services)
@@ -68,8 +82,17 @@ namespace Manga.API.Extensions
         }
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>
-        services.AddScoped<MangaContextSeed>()
+        services
+            .AddAutoMapper(Assembly.GetExecutingAssembly())
+            .AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
+            })
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>))
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>)).AddScoped<MangaContextSeed>()
+            .AddScoped<MangaContextSeed>()
             .AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>))
+            .AddScoped<IMangaRepository, MangaRepository>()
             ;
     }
 }
