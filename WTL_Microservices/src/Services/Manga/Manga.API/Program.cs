@@ -13,6 +13,7 @@ try
     builder.Services.AddApplicationServices();
     builder.Services.ConfigureHealthChecks();
     builder.Services.ConfigureSwagger();
+    builder.Services.ConfigureJWT(builder.Configuration);
     builder.Services.ConfigureErrorCode(builder.Configuration);
     builder.Services.AddInfrastructure();
     var app = builder.Build();

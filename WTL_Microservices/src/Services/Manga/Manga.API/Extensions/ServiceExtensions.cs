@@ -16,11 +16,42 @@ using Manga.Application.Common.Repositories;
 using Manga.Application.Features.Mangas.Queries;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DTOs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Manga.API.Extensions
 {
     public static class ServiceExtensions
     {
+        public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
+        {
+            var key = configuration["Jwt:Secret"];
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(jwt =>
+            {
+                jwt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = configuration["Jwt:Issuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
+                };
+            }).AddCookie()
+            .AddGoogle(options =>
+            {
+                options.ClientId = configuration["Google:ClientId"];
+                options.ClientSecret = configuration["Google:ClientSecret"];
+            });
+        }
+
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
             var databaseSettings = services.GetOptions<DatabaseSettings>(nameof(DatabaseSettings));

@@ -7,6 +7,7 @@ namespace Manga.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class MangaController : ControllerBase
     {
         private readonly IMediator _mediator;
