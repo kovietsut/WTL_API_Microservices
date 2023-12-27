@@ -10,8 +10,11 @@ try
     builder.Host.AddAppConfigurations();
     // Add services to the container.
     builder.Services.AddControllers();
+    builder.Services.AddControllersWithViews()
+        .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
     builder.Services.AddApplicationServices();
     builder.Services.ConfigureHealthChecks();
+    builder.Services.ConfigureCors();
     builder.Services.ConfigureSwagger();
     builder.Services.ConfigureJWT(builder.Configuration);
     builder.Services.ConfigureErrorCode(builder.Configuration);

@@ -1,7 +1,11 @@
+using Manga.Application.Features.Mangas.Commands;
 using Manga.Application.Features.Mangas.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.DTOs;
+using Shared.DTOs.Manga;
+using Shared.SeedWork;
 
 namespace Manga.API.Controllers
 {
@@ -29,6 +33,46 @@ namespace Manga.API.Controllers
         public async Task<IActionResult> GetList(int? pageNumber, int? pageSize, string? searchText)
         {
             var query = new GetListMangaQuery(pageNumber, pageSize, searchText);
+            var result = await _mediator.Send(query);
+            return result;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateManga([FromBody] CreateMangaDto model)
+        {
+            var query = new CreateMangaCommand()
+            {
+                CreatedBy = model.CreatedBy,
+                Type = model.Type,
+                Name = model.Name,
+                Preface = model.Preface,
+                AmountOfReadings = model.AmountOfReadings,
+                CoverImage = model.CoverImage,
+                Language = model.Language,
+                HasAdult = model.HasAdult,
+                ListGenreId = model.ListGenreId,
+            };
+            var result = await _mediator.Send(query);
+            return result;
+        }
+
+        [HttpPut("{mangaId}")]
+        public async Task<IActionResult> Update(int mangaId, [FromBody] UpdateMangaDto model)
+        {
+            var query = new UpdateMangaCommand()
+            {
+                MangaId = mangaId,
+                CreatedBy = model.CreatedBy,
+                Type = model.Type,
+                Name = model.Name,
+                Status = model.Status,
+                Preface = model.Preface,
+                AmountOfReadings = model.AmountOfReadings,
+                CoverImage = model.CoverImage,
+                Language = model.Language,
+                HasAdult = model.HasAdult,
+                ListGenreId = model.ListGenreId,
+            };
             var result = await _mediator.Send(query);
             return result;
         }

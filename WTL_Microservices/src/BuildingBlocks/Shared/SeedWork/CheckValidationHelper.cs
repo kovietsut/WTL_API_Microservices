@@ -18,5 +18,10 @@ namespace Shared.SeedWork
         {
             return value is int || value is long;
         }
+
+        public static bool IsValidLongArray(List<long> array)
+        {
+            return array != null && array.Count >= 1 && array.All(element => element is long);
+        }
     }
 }

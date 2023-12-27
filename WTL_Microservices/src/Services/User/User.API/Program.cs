@@ -14,6 +14,7 @@ try
     builder.Services.AddInfrastructure();
     builder.Services.ConfigureRedis();
     builder.Services.ConfigureHealthChecks();
+    builder.Services.ConfigureCors();
     builder.Services.ConfigureSwagger();
     builder.Services.ConfigureErrorCode(builder.Configuration);
     builder.Services.ConfigureJWT(builder.Configuration);

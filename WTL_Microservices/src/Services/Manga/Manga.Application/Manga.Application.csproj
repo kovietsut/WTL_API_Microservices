@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Mangas\Commands\" />
     <Folder Include="Features\Chapters\" />
   </ItemGroup>
 

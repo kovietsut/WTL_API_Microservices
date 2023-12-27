@@ -9,12 +9,9 @@ using Shared.Configurations;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Manga.Application.Common.Behaviours;
 using MediatR;
-using System.Net.NetworkInformation;
 using System.Reflection;
 using Manga.Application.Common.Repositories.Interfaces;
 using Manga.Application.Common.Repositories;
-using Manga.Application.Features.Mangas.Queries;
-using Microsoft.AspNetCore.Mvc;
 using Shared.DTOs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -49,6 +46,17 @@ namespace Manga.API.Extensions
             {
                 options.ClientId = configuration["Google:ClientId"];
                 options.ClientSecret = configuration["Google:ClientSecret"];
+            });
+        }
+
+        public static void ConfigureCors(this IServiceCollection services)
+        {
+            services.AddCors(cors =>
+            {
+                cors.AddPolicy("AllowAll", builder =>
+                    builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
             });
         }
 
@@ -124,6 +132,7 @@ namespace Manga.API.Extensions
             .AddScoped<MangaContextSeed>()
             .AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>))
             .AddScoped<IMangaRepository, MangaRepository>()
+            .AddScoped<IMangaGenreRepository, MangaGenreRepository>()
             ;
     }
 }

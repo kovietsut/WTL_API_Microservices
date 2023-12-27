@@ -46,6 +46,17 @@ namespace User.API.Extensions
             });
         }
 
+        public static void ConfigureCors(this IServiceCollection services)
+        {
+            services.AddCors(cors =>
+            {
+                cors.AddPolicy("AllowAll", builder =>
+                    builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
+        }
+
         public static void ConfigureSwagger(this IServiceCollection services)
         {
             services.AddSwaggerGen(swagger =>
