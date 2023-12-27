@@ -18,6 +18,7 @@ namespace Manga.API.Extensions
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseCors("AllowAll");
             // app.UseHttpsRedirection(); //for production only
             app.UseEndpoints(endpoints =>
             {
