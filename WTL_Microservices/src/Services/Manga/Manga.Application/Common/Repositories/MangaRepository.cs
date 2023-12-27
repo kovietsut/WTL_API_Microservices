@@ -1,5 +1,4 @@
 ﻿using Contracts.Domains.Interfaces;
-using Infrastructure.Common;
 using Infrastructure.Common.Repositories;
 using Manga.Application.Common.Repositories.Interfaces;
 using Manga.Infrastructure.Entities;
@@ -8,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Shared.DTOs;
 using Shared.DTOs.Manga;
 using Shared.DTOs.MangaGenre;
@@ -30,9 +30,9 @@ namespace Manga.Application.Common.Repositories
 
         public Task<MangaEntity> GetMangaById(long mangaId) => FindByCondition(x => x.Id == mangaId).SingleOrDefaultAsync();
 
-        public async Task<IActionResult> GetManga(long userId)
+        public async Task<IActionResult> GetManga(long mangaId)
         {
-            var manga = await GetMangaById(userId);
+            var manga = await GetMangaById(mangaId);
             if (manga == null)
             {
                 return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Manga does not exist");
@@ -148,7 +148,7 @@ namespace Manga.Application.Common.Repositories
                 var currentManga = await GetByIdAsync(mangaId);
                 if (currentManga == null)
                 {
-                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "User does not exist");
+                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Manga does not exist");
                 }
                 currentManga.ModifiedAt = DateTimeOffset.UtcNow;
                 currentManga.ModifiedBy = model.CreatedBy;
@@ -171,6 +171,64 @@ namespace Manga.Application.Common.Repositories
                 return JsonUtil.Success(currentManga);
             }
             catch(Exception ex)
+            {
+                return JsonUtil.Error(StatusCodes.Status500InternalServerError, _errorCodes.Status500.APIServerError, ex.Message);
+            }
+        }
+
+        public async Task<IActionResult> RemoveSoftManga(long mangaId)
+        {
+            try
+            {
+                // Manga
+                var currentManga = await GetByIdAsync(mangaId);
+                if (currentManga == null)
+                {
+                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Manga does not exist");
+                }
+                currentManga.IsEnabled = false;
+                await UpdateAsync(currentManga);
+                // MangaGenre
+                await _mangaGenreRepository.RemoveSoftMangaGenre(mangaId);
+                return JsonUtil.Success(currentManga.Id);
+            }
+            catch(Exception ex)
+            {
+                return JsonUtil.Error(StatusCodes.Status500InternalServerError, _errorCodes.Status500.APIServerError, ex.Message);
+            }
+        }
+
+        public async Task<IActionResult> RemoveSoftListManga(string ids)
+        {
+            try
+            {
+                await BeginTransactionAsync();
+                var list = new List<MangaEntity>();
+                if (ids.IsNullOrEmpty())
+                {
+                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Ids cannot be null");
+                }
+                var listIds = Util.SplitStringToArray(ids);
+                // List Manga
+                var mangas = FindAll().Where(x => listIds.Contains(x.Id));
+                if (mangas == null || mangas.Count() == 0)
+                {
+                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Cannot get list mangas");
+                }
+                foreach(var manga in mangas)
+                {
+                    manga.IsEnabled = false;
+                    list.Add(manga);
+                }
+                var listRemoved = mangas.Select(x => x.Id).ToList();
+                if (list.Count != 0)
+                {
+                    await UpdateListAsync(list);
+                }
+                await EndTransactionAsync();
+                return JsonUtil.Success(listRemoved);
+            }
+            catch (Exception ex)
             {
                 return JsonUtil.Error(StatusCodes.Status500InternalServerError, _errorCodes.Status500.APIServerError, ex.Message);
             }

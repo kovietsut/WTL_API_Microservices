@@ -11,6 +11,7 @@ namespace Manga.Application.Common.Repositories.Interfaces
     public interface IMangaGenreRepository
     {
         Task CreateMangaGenre(CreateMangaGenreDto model);
+        Task RemoveSoftMangaGenre(long mangaId);
         Task UpdateMangaGenre(UpdateMangaGenreDto model);
     }
 }

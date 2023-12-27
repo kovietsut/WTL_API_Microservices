@@ -28,5 +28,10 @@ namespace Shared.SeedWork
             }
             return keyBuilder.ToString();
         }
+
+        public static List<long> SplitStringToArray(string ids)
+        {
+            return ids.Split(",").Select(long.Parse).ToList();
+        }
     }
 }

@@ -47,7 +47,17 @@ namespace Manga.Application.Common.Repositories
 
         public async Task RemoveSoftMangaGenre(long mangaId)
         {
-
+            var list = new List<MangaGenre>();
+            var mangaGenres = FindAll().Where(x => x.MangaId == mangaId);
+            foreach (var mangaGenre in mangaGenres)
+            {
+                mangaGenre.IsEnabled = false;
+                list.Add(mangaGenre);
+            }
+            if (list.Count != 0)
+            {
+                await UpdateListAsync(list);
+            }
         }
 
         private async Task RemoveMangaGenre(long mangaId)

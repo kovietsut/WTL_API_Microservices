@@ -11,5 +11,7 @@ namespace Manga.Application.Common.Repositories.Interfaces
         Task<IActionResult> GetListManga(int? pageNumber, int? pageSize, string? searchText);
         Task<IActionResult> CreateManga(CreateMangaDto model);
         Task<IActionResult> UpdateManga(long mangaId, UpdateMangaDto model);
+        Task<IActionResult> RemoveSoftManga(long mangaId);
+        Task<IActionResult> RemoveSoftListManga(string ids);
     }
 }

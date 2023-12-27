@@ -1,5 +1,6 @@
 using Manga.Application.Features.Mangas.Commands;
 using Manga.Application.Features.Mangas.Queries;
+using Manga.Infrastructure.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -73,6 +74,22 @@ namespace Manga.API.Controllers
                 HasAdult = model.HasAdult,
                 ListGenreId = model.ListGenreId,
             };
+            var result = await _mediator.Send(query);
+            return result;
+        }
+
+        [HttpDelete("{mangaId}")]
+        public async Task<IActionResult> Delete(long mangaId)
+        {
+            var query = new DeleteMangaCommand(mangaId);
+            var result = await _mediator.Send(query);
+            return result;
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteList(string ids)
+        {
+            var query = new DeleteListMangaCommand(ids);
             var result = await _mediator.Send(query);
             return result;
         }
