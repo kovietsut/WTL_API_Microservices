@@ -27,6 +27,7 @@ try
         await contextSeed.InitialiseAsync();
         await contextSeed.SeedAsync();
     }
+    app.UseCors("AllowAll");
     app.Run();
 }
 catch (Exception ex)
