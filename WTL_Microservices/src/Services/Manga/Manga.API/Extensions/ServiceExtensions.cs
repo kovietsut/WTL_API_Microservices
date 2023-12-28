@@ -133,6 +133,7 @@ namespace Manga.API.Extensions
             .AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>))
             .AddScoped<IMangaRepository, MangaRepository>()
             .AddScoped<IMangaGenreRepository, MangaGenreRepository>()
+            .AddScoped<IGenreRepository, GenreRepository>()
             ;
     }
 }
