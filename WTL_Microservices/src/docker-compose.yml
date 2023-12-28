@@ -8,6 +8,9 @@ services:
   redisuserdb:
     image: redis:alpine
 
+  mangadb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+
   #infrastructure section
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -22,6 +25,12 @@ services:
       context: .
       dockerfile: Services/User/User.API/Dockerfile
 
+  manga.api:
+    image: ${DOCKER_REGISTRY-}manga-api:${PLATFORM:-linux}-${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Services/Manga/Manga.API/Dockerfile
+
 #network section
 networks:
   default:
@@ -30,8 +39,10 @@ networks:
 
 #volumes section
 volumes:
-  sqlserver_data:
-    name: sqlserver_data
+  sqlserver_user_data:
+    name: sqlserver_user_data
+  sqlserver_manga_data:
+    name: sqlserver_manga_data
   rabbitmq_data:
     name: rabbitmq_data
   portainer_data:

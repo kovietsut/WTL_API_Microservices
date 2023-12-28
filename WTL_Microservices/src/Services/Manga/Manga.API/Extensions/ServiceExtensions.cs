@@ -134,6 +134,7 @@ namespace Manga.API.Extensions
             .AddScoped<IMangaRepository, MangaRepository>()
             .AddScoped<IMangaGenreRepository, MangaGenreRepository>()
             .AddScoped<IGenreRepository, GenreRepository>()
+            .AddScoped<IChapterRepository, ChapterRepository>()
             ;
     }
 }
