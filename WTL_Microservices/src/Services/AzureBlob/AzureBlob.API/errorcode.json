@@ -1,0 +1,36 @@
+{
+  "ErrorCode": {
+    "Status400": {
+      "ConstraintViolation": "101",
+      "BadRequest": "102",
+      "Notfound": "103",
+      "SystemError": "104",
+      "FormatError": "107",
+      "APIClientError": "108"
+    },
+    "Status401": {
+      "Unauthorized": "19",
+      "ServerError": "372"
+    },
+    "Status403": {
+      "Forbidden": "18"
+    },
+    "Status404": {
+      "NotFound": "442"
+    },
+    "Status409": {
+      "Conflict": "423"
+    },
+    "Status422": {
+      "UnprocessableEntity": "201"
+    },
+    "Status500": {
+      "ServerError": "926",
+      "APIServerError": "784"
+    },
+    "Status503": {
+      "APINotAvailable": "529",
+      "ServiceUnavailable": "554"
+    }
+  }
+}
