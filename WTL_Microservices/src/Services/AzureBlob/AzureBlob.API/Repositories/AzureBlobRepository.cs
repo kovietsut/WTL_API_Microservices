@@ -11,6 +11,7 @@ using Shared.DTOs;
 using Shared.SeedWork;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
+using System.Text;
 
 namespace AzureBlob.API.Repositories
 {
@@ -92,6 +93,10 @@ namespace AzureBlob.API.Repositories
                     return JsonUtil.Error(StatusCodes.Status400BadRequest, _errorCodes.Status400.Notfound, "Folder name is required");
                 }
                 var containerClient = _blobServiceClient.GetBlobContainerClient(folderName);
+                if (await containerClient.ExistsAsync() != true)
+                {
+                    return JsonUtil.Error(StatusCodes.Status400BadRequest, _errorCodes.Status400.Notfound, "Folder does not exist");
+                }
                 var blobs = new List<BlobItemResponse>();
                 var uri = _blobServiceClient.Uri.ToString();
                 await foreach (var blobItem in containerClient.GetBlobsAsync())
@@ -129,7 +134,14 @@ namespace AzureBlob.API.Repositories
             try
             {
                 var quality = 75;
-                if (attachment == null) return null;
+                if (folderName == null)
+                {
+                    return JsonUtil.Error(StatusCodes.Status400BadRequest, _errorCodes.Status400.BadRequest, "Folder name cannot be null");
+                }
+                if (attachment == null)
+                {
+                    return JsonUtil.Error(StatusCodes.Status400BadRequest, _errorCodes.Status400.BadRequest, "Attachment cannot be null");
+                }
                 // Create temporary file and Compress file
                 var tempFilePath = Path.GetTempFileName();
                 await CompressAsync(attachment, tempFilePath, quality);
@@ -155,23 +167,39 @@ namespace AzureBlob.API.Repositories
             }
         }
 
-        public async Task<BlobItemResponse> DownloadAsync(string fileName, string folderName)
+        public async Task<IActionResult> UploadListFile(IFormFileCollection attachments, string folderName)
         {
             try
             {
-                var file = _blobServiceClient.GetBlobContainerClient(folderName).GetBlobClient(fileName);
-                if (await file.ExistsAsync())
+                var quality = 75;
+                if (folderName == null)
                 {
-                    var data = await file.OpenReadAsync();
-                    var content = await file.DownloadContentAsync();
-                    var contentType = content.Value.Details.ContentType;
-                    return new BlobItemResponse { Content = data, ContentType = contentType, Name = fileName };
+                    return JsonUtil.Error(StatusCodes.Status400BadRequest, _errorCodes.Status400.BadRequest, "Folder name cannot be null");
                 }
-                return new BlobItemResponse { Message = "File does not exist" };
+                if (attachments == null || attachments.Count() <= 0)
+                {
+                    return JsonUtil.Error(StatusCodes.Status400BadRequest, _errorCodes.Status400.BadRequest, "Please select at least 1 attachment");
+                }
+                // Create temporary file and Compress file
+                foreach ( var attachment in attachments)
+                {
+                    var tempFilePath = Path.GetTempFileName();
+                    await CompressAsync(attachment, tempFilePath, quality);
+                    // Upload file to blob Azure
+                    var containerClient = _blobServiceClient.GetBlobContainerClient(folderName);
+                    await containerClient.CreateIfNotExistsAsync();
+                    string uniqueAttachmentName = Guid.NewGuid().ToString() + "9999a" + attachment.FileName;
+                    var blobClient = containerClient.GetBlobClient(uniqueAttachmentName);
+                    var compressedFileStream = File.OpenRead(tempFilePath);
+                    await blobClient.UploadAsync(compressedFileStream, new BlobHttpHeaders { ContentType = attachment.ContentType });
+                    // Delete the temporary file
+                    // File.Delete(tempFilePath);
+                }
+                return JsonUtil.Success($"Upload {attachments.Count()} Success");
             }
             catch (Exception e)
             {
-                return new BlobItemResponse { Message = e.Message };
+                return JsonUtil.Error(StatusCodes.Status500InternalServerError, _errorCodes.Status500.ServerError, e.Message);
             }
         }
 
