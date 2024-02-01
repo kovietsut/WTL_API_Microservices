@@ -16,6 +16,9 @@ using Shared.DTOs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection;
+using Shared.Common.Interfaces;
+using Shared.Common;
 
 namespace Manga.API.Extensions
 {
@@ -135,6 +138,8 @@ namespace Manga.API.Extensions
             .AddScoped<IMangaGenreRepository, MangaGenreRepository>()
             .AddScoped<IGenreRepository, GenreRepository>()
             .AddScoped<IChapterRepository, ChapterRepository>()
+            .AddScoped<IChapterImageRepository, ChapterImageRepository>()
+            .AddScoped<ISasTokenGenerator, SasTokenGenerator>()
             ;
     }
 }

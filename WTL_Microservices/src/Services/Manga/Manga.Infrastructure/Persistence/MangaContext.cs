@@ -26,6 +26,14 @@ namespace Manga.Infrastructure.Persistence
 
         public virtual DbSet<MangaInteraction> MangaInteractions { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer("ConnectionStrings");
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Chapter>(entity =>
@@ -38,6 +46,7 @@ namespace Manga.Infrastructure.Persistence
                 entity.Property(e => e.PublishDate);
                 entity.Property(e => e.Status).HasMaxLength(200);
                 entity.Property(e => e.ThumbnailImage).IsUnicode(false);
+                entity.Property(e => e.Content).IsUnicode(false);
                 entity.Property(x => x.Language).HasConversion(new EnumToStringConverter<LanguageEnum>());
 
                 entity.HasOne(d => d.Manga).WithMany(p => p.Chapters)
@@ -111,6 +120,9 @@ namespace Manga.Infrastructure.Persistence
 
                 entity.HasOne(d => d.Manga).WithMany(p => p.UserMangaInteractions)
                     .HasForeignKey(d => d.MangaId);
+
+                entity.HasOne(d => d.Chapter).WithMany(p => p.MangaInteractions)
+                    .HasForeignKey(d => d.ChapterId);
             });
         }
     }

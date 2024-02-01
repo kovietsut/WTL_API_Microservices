@@ -33,5 +33,22 @@ namespace Shared.SeedWork
         {
             return ids.Split(",").Select(long.Parse).ToList();
         }
+
+        public static (string folderName, string fileName) ExtractNamesFromUrl(string url)
+        {
+            Uri uri = new(url);
+            string path = uri.AbsolutePath;
+            string[] segments = path.Trim('/').Split('/');
+            if (segments.Length >= 2)
+            {
+                string fileName = segments[segments.Length - 1];
+                string folderName = segments[segments.Length - 2];
+                return (folderName, fileName);
+            }
+            else
+            {
+                return (string.Empty, string.Empty);
+            }
+        }
     }
 }

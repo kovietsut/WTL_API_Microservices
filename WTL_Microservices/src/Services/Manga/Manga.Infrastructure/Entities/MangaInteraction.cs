@@ -13,8 +13,11 @@ namespace Manga.Infrastructure.Entities
 
         public long? MangaId { get; set; }
 
+        public long? ChapterId { get; set; }
+
         public string? InteractionType { get; set; }
 
         public virtual Manga? Manga { get; set; }
+        public virtual Chapter? Chapter { get; set; }
     }
 }

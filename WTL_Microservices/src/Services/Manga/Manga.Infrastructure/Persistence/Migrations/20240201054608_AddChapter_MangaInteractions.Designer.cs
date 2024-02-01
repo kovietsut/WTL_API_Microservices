@@ -4,6 +4,7 @@ using Manga.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Manga.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(MangaContext))]
-    partial class MangaContextModelSnapshot : ModelSnapshot
+    [Migration("20240201054608_AddChapter_MangaInteractions")]
+    partial class AddChapter_MangaInteractions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,10 +32,6 @@ namespace Manga.Infrastructure.Persistence.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
 
                     b.Property<DateTimeOffset?>("CreatedAt")
                         .HasColumnType("datetimeoffset");

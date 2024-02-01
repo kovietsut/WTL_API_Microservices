@@ -21,6 +21,7 @@ namespace Manga.Infrastructure.Entities
         public int? NumberOfChapter { get; set; }
 
         public string? Name { get; set; }
+        public string? Content { get; set; }
 
         public bool? HasDraft { get; set; }
 
@@ -39,6 +40,7 @@ namespace Manga.Infrastructure.Entities
         public virtual ICollection<ChapterComment> ChapterComments { get; set; } = new List<ChapterComment>();
 
         public virtual ICollection<ChapterImage> ChapterImages { get; set; } = new List<ChapterImage>();
+        public virtual ICollection<MangaInteraction> MangaInteractions { get; set; } = new List<MangaInteraction>();
 
         public virtual Manga? Manga { get; set; }
     }

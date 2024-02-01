@@ -58,7 +58,7 @@ namespace User.API.Repositories
 
         public Task<UserEntity> GetUserByEmail(string email) =>
             FindByCondition(x => x.Email.Equals(email)).SingleOrDefaultAsync();
-            
+        
         public Task<UserEntity> GetUserById(long id) =>
             FindByCondition(x => x.Id == id).SingleOrDefaultAsync();
 

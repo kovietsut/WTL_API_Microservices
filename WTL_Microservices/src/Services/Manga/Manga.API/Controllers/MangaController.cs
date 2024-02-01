@@ -1,12 +1,9 @@
 using Manga.Application.Features.Mangas.Commands;
 using Manga.Application.Features.Mangas.Queries;
-using Manga.Infrastructure.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DTOs;
 using Shared.DTOs.Manga;
-using Shared.SeedWork;
 
 namespace Manga.API.Controllers
 {

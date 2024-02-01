@@ -10,6 +10,5 @@ namespace AzureBlob.API.Repositories.Interfaces
         Task<IActionResult> UploadFile(IFormFile attachment, string folderName);
         Task<IActionResult> UploadListFile(IFormFileCollection attachments, string folderName);
         Task<IActionResult> DeleteAsync(string fileName, string folderName);
-        string GenerateSasToken(string fileName, string folderName);
     }
 }

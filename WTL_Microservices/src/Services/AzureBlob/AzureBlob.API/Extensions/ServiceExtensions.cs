@@ -10,6 +10,8 @@ using AzureBlob.API.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Shared.Common;
+using Shared.Common.Interfaces;
 
 namespace AzureBlob.API.Extensions
 {
@@ -95,6 +97,7 @@ namespace AzureBlob.API.Extensions
             .AddScoped(typeof(IRepositoryBase<,,>), typeof(RepositoryBase<,,>))
             .AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>))
             .AddScoped<IAzureBlobRepository, AzureBlobRepository>()
+            .AddScoped<ISasTokenGenerator, SasTokenGenerator>()
             ;
     }
 }

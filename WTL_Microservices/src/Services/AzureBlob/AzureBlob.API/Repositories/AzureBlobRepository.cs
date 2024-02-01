@@ -1,17 +1,16 @@
 ﻿using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Azure.Storage.Sas;
 using AzureBlob.API.Models;
 using AzureBlob.API.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Shared.Common.Interfaces;
 using Shared.Configurations;
 using Shared.DTOs;
 using Shared.SeedWork;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
-using System.Text;
 
 namespace AzureBlob.API.Repositories
 {
@@ -20,33 +19,16 @@ namespace AzureBlob.API.Repositories
         private readonly AzureBlobSettings _azureBlobSettings;
         private readonly BlobServiceClient _blobServiceClient;
         private readonly ErrorCode _errorCodes;
+        private readonly ISasTokenGenerator _sasTokenGenerator;
 
-        public AzureBlobRepository(IOptions<AzureBlobSettings> azureBlobSettings, IOptions<ErrorCode> errorCodes)
+        public AzureBlobRepository(IOptions<AzureBlobSettings> azureBlobSettings, IOptions<ErrorCode> errorCodes, ISasTokenGenerator sasTokenGenerator)
         {
             _azureBlobSettings = azureBlobSettings.Value;
             _errorCodes = errorCodes.Value;
             var sharedKeyCredential = new StorageSharedKeyCredential(_azureBlobSettings.AccountName, _azureBlobSettings.AccountKey);
             var blobUri = $"https://{_azureBlobSettings.AccountName}.blob.core.windows.net";
             _blobServiceClient = new BlobServiceClient(new Uri(blobUri), sharedKeyCredential);
-        }
-
-        public string GenerateSasToken(string fileName, string folderName)
-        {
-            var startTime = DateTimeOffset.UtcNow;
-            var expiryTime = DateTimeOffset.UtcNow.AddMinutes(30);
-            // Generate the SAS token
-            var sasBuilder = new BlobSasBuilder()
-            {
-                BlobContainerName = folderName,
-                BlobName = fileName,
-                Resource = "b", // "b" indicates a blob-level SAS
-                StartsOn = startTime,
-                ExpiresOn = expiryTime,
-            };
-            sasBuilder.SetPermissions(BlobSasPermissions.Read);
-            var sasToken = sasBuilder.ToSasQueryParameters(new StorageSharedKeyCredential(_azureBlobSettings.AccountName,
-            _azureBlobSettings.AccountKey)).ToString();
-            return sasToken;
+            _sasTokenGenerator = sasTokenGenerator; 
         }
 
         public async Task<IActionResult> GetAttachment(string fileName, string folderName)
@@ -64,7 +46,7 @@ namespace AzureBlob.API.Repositories
                 var file = _blobServiceClient.GetBlobContainerClient(folderName).GetBlobClient(fileName);
                 if (await file.ExistsAsync())
                 {
-                    var sasToken = GenerateSasToken(fileName, folderName);
+                    var sasToken = _sasTokenGenerator.GenerateSasToken(fileName, folderName);
                     var blobUriWithSas = new Uri(file.Uri + "?" + sasToken).ToString();
                     var data = await file.OpenReadAsync();
                     var content = await file.DownloadContentAsync();
@@ -101,7 +83,7 @@ namespace AzureBlob.API.Repositories
                 var uri = _blobServiceClient.Uri.ToString();
                 await foreach (var blobItem in containerClient.GetBlobsAsync())
                 {
-                    var sasToken = GenerateSasToken(blobItem.Name, folderName);
+                    var sasToken = _sasTokenGenerator.GenerateSasToken(blobItem.Name, folderName);
                     var blobUriWithSas = new Uri($"{uri}{folderName}/{blobItem.Name}" + "?" + sasToken).ToString();
                     blobs.Add(new BlobItemResponse
                     {
