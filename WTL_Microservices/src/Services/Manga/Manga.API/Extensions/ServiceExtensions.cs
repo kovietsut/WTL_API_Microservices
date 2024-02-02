@@ -1,5 +1,4 @@
 ﻿using Contracts.Domains.Interfaces;
-using Infrastructure.Common.Repositories;
 using Infrastructure.Common;
 using Infrastructure.Extensions;
 using Manga.Infrastructure.Persistence;
@@ -16,7 +15,6 @@ using Shared.DTOs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.Extensions.DependencyInjection;
 using Shared.Common.Interfaces;
 using Shared.Common;
 
@@ -130,16 +128,19 @@ namespace Manga.API.Extensions
             {
                 cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
             })
+            .AddHttpContextAccessor()
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>))
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>)).AddScoped<MangaContextSeed>()
             .AddScoped<MangaContextSeed>()
             .AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>))
+            .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
             .AddScoped<IMangaRepository, MangaRepository>()
             .AddScoped<IMangaGenreRepository, MangaGenreRepository>()
             .AddScoped<IGenreRepository, GenreRepository>()
             .AddScoped<IChapterRepository, ChapterRepository>()
             .AddScoped<IChapterImageRepository, ChapterImageRepository>()
             .AddScoped<ISasTokenGenerator, SasTokenGenerator>()
+            .AddScoped<IBaseAuthService, BaseAuthService>()
             ;
     }
 }

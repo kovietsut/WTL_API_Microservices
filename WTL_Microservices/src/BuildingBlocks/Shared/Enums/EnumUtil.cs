@@ -11,4 +11,10 @@ namespace Shared.Enums
         Vn = 1,
         Eng = 2,
     }
+
+    public enum RoleEnum
+    {
+        ADMIN = 1,
+        USER = 2,
+    }
 }

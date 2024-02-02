@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Shared.Common.Interfaces;
 using Shared.DTOs;
-using Shared.DTOs.Chapter;
 using Shared.DTOs.ChapterImage;
 using Shared.SeedWork;
 
@@ -19,12 +18,14 @@ namespace Manga.Application.Common.Repositories
     {
         private readonly ErrorCode _errorCodes;
         private readonly ISasTokenGenerator _sasTokenGenerator;
+        private readonly IBaseAuthService _baseAuthService;
         public ChapterImageRepository(MangaContext dbContext, IUnitOfWork<MangaContext> unitOfWork, IOptions<ErrorCode> errorCode, 
-            ISasTokenGenerator sasTokenGenerator) :
+            ISasTokenGenerator sasTokenGenerator, IBaseAuthService baseAuthService) :
            base(dbContext, unitOfWork)
         {
             _errorCodes = errorCode.Value;
             _sasTokenGenerator = sasTokenGenerator;
+            _baseAuthService = baseAuthService;
         }
 
         public Task<ChapterImage> GetChapterImageById(long chapterImageId) => FindByCondition(x => x.Id == chapterImageId).SingleOrDefaultAsync();
@@ -86,7 +87,7 @@ namespace Manga.Application.Common.Repositories
             }
         }
 
-        public async Task<IActionResult> GetListImagesByChapter(int chapterId)
+        public async Task<IActionResult> GetListImagesByChapter(long chapterId)
         {
             try
             {
@@ -138,7 +139,7 @@ namespace Manga.Application.Common.Repositories
             }
         }
 
-        public async Task CreateList(long chapterId, List<ChapterImageDto>? imageList, long userId)
+        public async Task CreateList(long chapterId, List<ChapterImageDto>? imageList)
         {
             var listChapterImages = new List<ChapterImage>();
             imageList.ForEach(item =>
@@ -147,7 +148,7 @@ namespace Manga.Application.Common.Repositories
                 {
                     IsEnabled = true,
                     CreatedAt = DateTime.Now,
-                    CreatedBy = userId,
+                    CreatedBy = _baseAuthService.GetCurrentUserId(),
                     ChapterId = chapterId,
                     Name = item.Name,
                     FileSize = item.FileSize,
@@ -165,7 +166,7 @@ namespace Manga.Application.Common.Repositories
             await DeleteListAsync(listOldChapterImages);
         }
 
-        public async Task<IActionResult> Update(int chapterId, ChaptermageListDto model)
+        public async Task<IActionResult> Update(long chapterId, ChaptermageListDto model)
         {
             try
             {

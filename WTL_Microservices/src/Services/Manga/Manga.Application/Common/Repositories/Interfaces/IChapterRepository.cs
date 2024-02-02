@@ -12,13 +12,13 @@ namespace Manga.Application.Common.Repositories.Interfaces
     public interface IChapterRepository
     {
         Task<Chapter> GetChapterById(long chapterId);
-        IActionResult GetList(int? pageNumber, int? pageSize, string? searchText);
-        Task<IActionResult> Get(int chapterId);
+        Task<IActionResult> GetList(int? pageNumber, int? pageSize, string? searchText);
+        Task<IActionResult> Get(long chapterId);
         Task<IActionResult> Create(CreateChapterDto model);
-        Task<IActionResult> Update(int chapterId, UpdateChapterDto model);
-        Task<IActionResult> Approve(int chapterId);
-        Task<IActionResult> Reject(int chapterId);
-        Task<IActionResult> Disable(int chapterId);
+        Task<IActionResult> Update(long chapterId, UpdateChapterDto model);
+        Task<IActionResult> Approve(long chapterId);
+        Task<IActionResult> Reject(long chapterId);
+        Task<IActionResult> Disable(long chapterId);
         Task<IActionResult> DeleteList(string ids);
     }
 }

@@ -1,4 +1,9 @@
-﻿using System;
+﻿using Manga.Application.Common.Repositories.Interfaces;
+using Manga.Application.Features.Genres.Commands;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +11,29 @@ using System.Threading.Tasks;
 
 namespace Manga.Application.Features.Chapters.Commands
 {
-    internal class DeleteChapterCommand
+    public class DeleteChapterCommand(long id) : IRequest<IActionResult>
     {
+        public long Id { get; private set; } = id;
+    }
+
+    public class DeleteChapterCommandHandler : IRequestHandler<DeleteChapterCommand, IActionResult>
+    {
+        private readonly IChapterRepository _chapterRepository;
+        private readonly ILogger _logger;
+
+        public DeleteChapterCommandHandler(IChapterRepository chapterRepository, ILogger logger)
+        {
+            _chapterRepository = chapterRepository;
+            _logger = logger;
+        }
+
+        private const string MethodName = "DeleteGenreCommandHandler";
+        public async Task<IActionResult> Handle(DeleteChapterCommand query, CancellationToken cancellationToken)
+        {
+            _logger.Information($"BEGIN: {MethodName} - Id: {query.Id}");
+            var genre = await _chapterRepository.Disable(query.Id);
+            _logger.Information($"END: {MethodName} - Id: {query.Id}");
+            return genre;
+        }
     }
 }

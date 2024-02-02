@@ -14,9 +14,9 @@ namespace Manga.Application.Common.Repositories.Interfaces
         Task<IActionResult> GetListChapterImage(int? pageNumber, int? pageSize, string? searchText);
         Task<IActionResult> GetChapterImage(long chapterImageId);
         Task<IActionResult> Create(ChaptermageListDto model);
-        Task<IActionResult> Update(int chapterId, ChaptermageListDto model);
-        Task<IActionResult> GetListImagesByChapter(int chapterId);
-        Task CreateList(long chapterId, List<ChapterImageDto>? imageList, long userId);
+        Task<IActionResult> Update(long chapterId, ChaptermageListDto model);
+        Task<IActionResult> GetListImagesByChapter(long chapterId);
+        Task CreateList(long chapterId, List<ChapterImageDto>? imageList);
         Task RemoveList(long chapterId);
     }
 }

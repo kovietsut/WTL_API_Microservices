@@ -1,5 +1,4 @@
 ﻿using Contracts.Domains.Interfaces;
-using Infrastructure.Common;
 using Infrastructure.Common.Repositories;
 using Manga.Application.Common.Repositories.Interfaces;
 using Manga.Infrastructure.Entities;
@@ -12,10 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Shared.Common.Interfaces;
 using Shared.DTOs;
 using Shared.DTOs.Chapter;
-using Shared.DTOs.Manga;
-using Shared.DTOs.MangaGenre;
 using Shared.SeedWork;
-using System;
 using static Shared.DTOs.Chapter.CreateChapterDto;
 using static Shared.DTOs.Chapter.UpdateChapterDto;
 
@@ -27,20 +23,23 @@ namespace Manga.Application.Common.Repositories
         private readonly IMangaRepository _mangaRepository;
         private readonly IChapterImageRepository _chapterImageRepository;
         private readonly ISasTokenGenerator _sasTokenGenerator;
+        private readonly IBaseAuthService _baseAuthService;
 
         public ChapterRepository(MangaContext dbContext, IUnitOfWork<MangaContext> unitOfWork, IMangaRepository mangaRepository,
-            IChapterImageRepository chapterImageRepository, ISasTokenGenerator sasTokenGenerator, IOptions<ErrorCode> errorCode) :
+            IChapterImageRepository chapterImageRepository, ISasTokenGenerator sasTokenGenerator, IOptions<ErrorCode> errorCode,
+            IBaseAuthService baseAuthService) :
             base(dbContext, unitOfWork)
         {
             _errorCodes = errorCode.Value;
             _mangaRepository = mangaRepository;
             _chapterImageRepository = chapterImageRepository;
             _sasTokenGenerator = sasTokenGenerator;
+            _baseAuthService = baseAuthService;
         }
 
         public Task<Chapter> GetChapterById(long chapterId) => FindByCondition(x => x.Id == chapterId).SingleOrDefaultAsync();
 
-        public IActionResult GetList(int? pageNumber, int? pageSize, string? searchText)
+        public async Task<IActionResult> GetList(int? pageNumber, int? pageSize, string? searchText)
         {
             try
             {
@@ -74,7 +73,7 @@ namespace Manga.Application.Common.Repositories
             }
         }
 
-        public async Task<IActionResult> Get(int chapterId)
+        public async Task<IActionResult> Get(long chapterId)
         {
             try
             {
@@ -111,7 +110,7 @@ namespace Manga.Application.Common.Repositories
                 {
                     IsEnabled = true,
                     CreatedAt = DateTime.Now,
-                    CreatedBy = model.UserId,
+                    CreatedBy = _baseAuthService.GetCurrentUserId(),
                     NumberOfChapter = model.NumberOfChapter,
                     Name = model.Name,
                     HasDraft = model.HasDraft,
@@ -127,7 +126,7 @@ namespace Manga.Application.Common.Repositories
                 if (model.Type.Equals("TruyenTranh"))
                 {
                     // Add List Chapter Images
-                    await _chapterImageRepository.CreateList(chapter.Id, model.ImageList, (long)model.UserId);
+                    await _chapterImageRepository.CreateList(chapter.Id, model.ImageList);
                 }
                 return JsonUtil.Success(chapter.Id);
             }
@@ -137,7 +136,7 @@ namespace Manga.Application.Common.Repositories
             }
         }
 
-        public async Task<IActionResult> Update(int chapterId, UpdateChapterDto model)
+        public async Task<IActionResult> Update(long chapterId, UpdateChapterDto model)
         {
             try
             {
@@ -154,7 +153,7 @@ namespace Manga.Application.Common.Repositories
                         check.Errors);
                 }
                 chapter.ModifiedAt = DateTime.Now;
-                chapter.ModifiedBy = model.UserId;
+                chapter.ModifiedBy = _baseAuthService.GetCurrentUserId();
                 chapter.Name = model.Name.Trim();
                 chapter.ThumbnailImage = model.ThumbnailImage.Trim();
                 chapter.HasDraft = model.HasDraft;
@@ -169,7 +168,7 @@ namespace Manga.Application.Common.Repositories
                     // Remove List Old Chapter Images
                     await _chapterImageRepository.RemoveList(chapterId);
                     // Add List Chapter Images
-                    await _chapterImageRepository.CreateList(chapter.Id, model.ImageList, (long)model.UserId);
+                    await _chapterImageRepository.CreateList(chapter.Id, model.ImageList);
                 }
                 return JsonUtil.Success(chapter.Id);
             }
@@ -179,7 +178,7 @@ namespace Manga.Application.Common.Repositories
             }
         }
 
-        public async Task<IActionResult> Approve(int chapterId)
+        public async Task<IActionResult> Approve(long chapterId)
         {
             try
             {
@@ -189,7 +188,7 @@ namespace Manga.Application.Common.Repositories
                     return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Chapter does not exist");
                 }
                 chapter.ModifiedAt = DateTime.Now;
-                //chapter.ModifiedBy = GetCurrentUserId();
+                chapter.ModifiedBy = _baseAuthService.GetCurrentUserId();
                 chapter.Status = "DuyetThanhCong";
                 await UpdateAsync(chapter);
                 return JsonUtil.Success(chapter.Id);
@@ -200,7 +199,7 @@ namespace Manga.Application.Common.Repositories
             }
         }
 
-        public async Task<IActionResult> Reject(int chapterId)
+        public async Task<IActionResult> Reject(long chapterId)
         {
             try
             {
@@ -210,7 +209,7 @@ namespace Manga.Application.Common.Repositories
                     return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Chapter does not exist");
                 }
                 chapter.ModifiedAt = DateTime.Now;
-                //chapter.ModifiedBy = GetCurrentUserId();
+                chapter.ModifiedBy = _baseAuthService.GetCurrentUserId();
                 chapter.Status = "TuChoi";
                 await UpdateAsync(chapter);
                 return JsonUtil.Success(chapter.Id);
@@ -221,7 +220,7 @@ namespace Manga.Application.Common.Repositories
             }
         }
 
-        public async Task<IActionResult> Disable(int chapterId)
+        public async Task<IActionResult> Disable(long chapterId)
         {
             try
             {

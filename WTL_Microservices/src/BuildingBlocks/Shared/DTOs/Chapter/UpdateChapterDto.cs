@@ -23,7 +23,6 @@ namespace Shared.DTOs.Chapter
         public string? PublishDate { get; set; }
         public string? Type { get; set; }
         public string? Status { get; set; }
-        public long? UserId { get; set; }
         // Image
         public List<ChapterImageDto>? ImageList { get; set; }
 
