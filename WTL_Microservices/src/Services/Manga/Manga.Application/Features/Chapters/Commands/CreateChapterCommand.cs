@@ -28,7 +28,7 @@ namespace Manga.Application.Features.Chapters.Commands
     public class CreateChapterCommandHandler : IRequestHandler<CreateChapterCommand, IActionResult>
     {
         private readonly IChapterRepository _chapterRepository;
-        private readonly ILogger     _logger;
+        private readonly ILogger _logger;
 
         public CreateChapterCommandHandler(IChapterRepository chapterRepository, ILogger logger)
         {
@@ -55,9 +55,9 @@ namespace Manga.Application.Features.Chapters.Commands
                 Status = query.Status,
                 ImageList = query.ImageList,
             };
-            var mangas = await _chapterRepository.Create(dto);
+            var chapter = await _chapterRepository.Create(dto);
             _logger.Information($"END: {MethodName}");
-            return mangas;
+            return chapter;
         }
     }
 }
