@@ -14,6 +14,7 @@ namespace Manga.API.Extensions
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "User API");
                 c.DisplayRequestDuration();
             });
+            app.UseMiddleware<JWTMiddleware>();
             app.UseMiddleware<ErrorWrappingMiddleware>();
             app.UseRouting();
             app.UseAuthentication();

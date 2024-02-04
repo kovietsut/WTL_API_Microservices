@@ -72,30 +72,6 @@ namespace User.API.Repositories
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
 
-        public static ClaimsPrincipal ValidateJSONWebToken(string token, IConfiguration configuration)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["Jwt:Secret"]));
-            try
-            {
-                var validationParameters = new TokenValidationParameters()
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = false,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["Jwt:Issuer"],
-                    IssuerSigningKey = securityKey,
-                    ValidateLifetime = false
-                };
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken securityToken);
-                return principal;
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
         // Refresh Token
         private string GenerateRefreshToken()
         {

@@ -12,6 +12,10 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Shared.Common;
 using Shared.Common.Interfaces;
+using MassTransit;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Infrastructure.Extensions;
+using EventBus.Messages.IntegrationEvents.Interfaces;
 
 namespace AzureBlob.API.Extensions
 {
@@ -90,6 +94,26 @@ namespace AzureBlob.API.Extensions
         public static void ConfigureAzureBlob(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<AzureBlobSettings>(configuration.GetSection("AzureClient"));
+        }
+
+        public static void ConfigureMassTransit(this IServiceCollection services)
+        {
+            var settings = services.GetOptions<EventBusSettings>(nameof(EventBusSettings));
+            if (settings == null || string.IsNullOrEmpty(settings.HostAddress) ||
+                string.IsNullOrEmpty(settings.HostAddress)) throw new ArgumentNullException("EventBusSettings is not configured!");
+
+            var mqConnection = new Uri(settings.HostAddress);
+
+            services.TryAddSingleton(KebabCaseEndpointNameFormatter.Instance);
+            services.AddMassTransit(config =>
+            {
+                config.UsingRabbitMq((ctx, cfg) =>
+                {
+                    cfg.Host(mqConnection);
+                });
+                // Publish submit azure message, instead of sending it to a specific queue directly.
+                config.AddRequestClient<IAzureAttachmentEvent>();
+            });
         }
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>

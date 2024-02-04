@@ -50,5 +50,13 @@ namespace Shared.SeedWork
                 return (string.Empty, string.Empty);
             }
         }
+
+        public static DateTime TimeStampToDateTime(long timeStamp)
+        {
+            // Unix timestamp is seconds past epoch
+            DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            dateTime = dateTime.AddSeconds(timeStamp).ToLocalTime();
+            return dateTime;
+        }
     }
 }

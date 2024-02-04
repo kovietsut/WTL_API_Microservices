@@ -17,6 +17,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Shared.Common.Interfaces;
 using Shared.Common;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using MassTransit;
+using Manga.API.Application.IntegrationEvents.EventsHanler;
 
 namespace Manga.API.Extensions
 {
@@ -118,6 +121,35 @@ namespace Manga.API.Extensions
                             new string[] { }
                         }
                     });
+            });
+        }
+
+        public static void ConfigureAzureBlob(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<AzureBlobSettings>(configuration.GetSection("AzureClient"));
+        }
+
+        public static void ConfigureMassTransit(this IServiceCollection services)
+        {
+            var settings = services.GetOptions<EventBusSettings>(nameof(EventBusSettings));
+            if (settings == null || string.IsNullOrEmpty(settings.HostAddress) ||
+                string.IsNullOrEmpty(settings.HostAddress)) throw new ArgumentNullException("EventBusSettings is not configured!");
+
+            var mqConnection = new Uri(settings.HostAddress);
+
+            services.TryAddSingleton(KebabCaseEndpointNameFormatter.Instance);
+            services.AddMassTransit(config =>
+            {
+                config.AddConsumersFromNamespaceContaining<AzureAttachmentEventHandler>();
+                config.UsingRabbitMq((ctx, cfg) =>
+                {
+                    cfg.Host(mqConnection);
+                    //cfg.ReceiveEndpoint("azure-blob-queue", c =>
+                    //{
+                    //    c.ConfigureConsumer<AzureAttachmentEventHandler>(ctx);
+                    //});
+                    cfg.ConfigureEndpoints(ctx);
+                });
             });
         }
 

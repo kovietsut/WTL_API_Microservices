@@ -8,10 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using Shared.Common.Interfaces;
 using Shared.DTOs;
 using Shared.DTOs.Chapter;
 using Shared.SeedWork;
+using System.Collections.Generic;
 using static Shared.DTOs.Chapter.CreateChapterDto;
 using static Shared.DTOs.Chapter.UpdateChapterDto;
 
@@ -162,6 +164,7 @@ namespace Manga.Application.Common.Repositories
                 chapter.Content = model.Type.Equals("TruyenTranh") ? null : model.Content.Trim();
                 chapter.Language = model.Language;
                 chapter.MangaId = model.MangaId;
+                chapter.NumberOfChapter = model.NumberOfChapter;
                 await UpdateAsync(chapter);
                 if (model.Type.Equals("TruyenTranh"))
                 {
@@ -249,6 +252,7 @@ namespace Manga.Application.Common.Repositories
             await BeginTransactionAsync();
             try
             {
+                var list = new List<Chapter>();
                 if (ids.IsNullOrEmpty())
                 {
                     return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Ids cannot be null");
@@ -259,8 +263,16 @@ namespace Manga.Application.Common.Repositories
                 {
                     return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Cannot get list chapters");
                 }
+                foreach (var chapter in chapters)
+                {
+                    chapter.IsEnabled = false;
+                    list.Add(chapter);
+                }
                 var listRemoved = chapters.Select(x => x.Id).ToList();
-                await DeleteListAsync(chapters);
+                if (list.Count != 0)
+                {
+                    await UpdateListAsync(list);
+                }
                 await EndTransactionAsync();
                 return JsonUtil.Success(listRemoved);
             }

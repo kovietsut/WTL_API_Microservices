@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Manga.Application.Models;
+using Microsoft.AspNetCore.Mvc;
 using Shared.DTOs.Chapter;
 using Shared.DTOs.ChapterImage;
 using System;
@@ -15,7 +16,7 @@ namespace Manga.Application.Common.Repositories.Interfaces
         Task<IActionResult> GetChapterImage(long chapterImageId);
         Task<IActionResult> Create(ChaptermageListDto model);
         Task<IActionResult> Update(long chapterId, ChaptermageListDto model);
-        Task<IActionResult> GetListImagesByChapter(long chapterId);
+        Task<List<BlobPathResponse>> GetListImagesByChapter(long chapterId);
         Task CreateList(long chapterId, List<ChapterImageDto>? imageList);
         Task RemoveList(long chapterId);
     }

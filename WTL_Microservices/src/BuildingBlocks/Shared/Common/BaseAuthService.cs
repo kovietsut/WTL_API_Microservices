@@ -1,6 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Shared.Common.Interfaces;
 using Shared.Enums;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Shared.Common
 {
@@ -39,6 +44,30 @@ namespace Shared.Common
         public int GetCurrentUserId()
         {
             return int.Parse(GetUserId());
+        }
+
+        public static ClaimsPrincipal ValidateJSONWebToken(string token, IConfiguration configuration)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["Jwt:Secret"]));
+            try
+            {
+                var validationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = false,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = configuration["Jwt:Issuer"],
+                    IssuerSigningKey = securityKey,
+                    ValidateLifetime = false
+                };
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken securityToken);
+                return principal;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
     }
 }

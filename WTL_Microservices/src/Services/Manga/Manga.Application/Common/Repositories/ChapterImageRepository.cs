@@ -1,6 +1,7 @@
 ﻿using Contracts.Domains.Interfaces;
 using Infrastructure.Common.Repositories;
 using Manga.Application.Common.Repositories.Interfaces;
+using Manga.Application.Models;
 using Manga.Infrastructure.Entities;
 using Manga.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http;
@@ -87,27 +88,15 @@ namespace Manga.Application.Common.Repositories
             }
         }
 
-        public async Task<IActionResult> GetListImagesByChapter(long chapterId)
+        public async Task<List<BlobPathResponse>> GetListImagesByChapter(long chapterId)
         {
-            try
-            {
-                var list = FindAll().Where(x => x.IsEnabled == true && x.ChapterId == chapterId)
-                 .Select(x => new
+            var list = FindAll().Where(x => x.IsEnabled == true && x.ChapterId == chapterId)
+                 .Select(x => new BlobPathResponse
                  {
-                     x.IsEnabled,
+                     IsEnabled = x.IsEnabled,
                      FilePath = _sasTokenGenerator.GenerateCoverImageUriWithSas(x.FilePath),
-                 });
-                if (list != null)
-                {
-                    var totalRecords = list.ToList().Count();
-                    return JsonUtil.Success(list, dataCount: totalRecords);
-                }
-                return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Empty List Data");
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                return JsonUtil.Error(StatusCodes.Status401Unauthorized, _errorCodes.Status401.Unauthorized, e.Message);
-            }
+                 }).ToList();
+            return list;
         }
 
         public async Task<IActionResult> Create(ChaptermageListDto model)

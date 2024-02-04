@@ -3,6 +3,8 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using AzureBlob.API.Models;
 using AzureBlob.API.Repositories.Interfaces;
+using EventBus.Messages.IntegrationEvents.Events;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Shared.Common.Interfaces;
@@ -20,8 +22,10 @@ namespace AzureBlob.API.Repositories
         private readonly BlobServiceClient _blobServiceClient;
         private readonly ErrorCode _errorCodes;
         private readonly ISasTokenGenerator _sasTokenGenerator;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public AzureBlobRepository(IOptions<AzureBlobSettings> azureBlobSettings, IOptions<ErrorCode> errorCodes, ISasTokenGenerator sasTokenGenerator)
+        public AzureBlobRepository(IOptions<AzureBlobSettings> azureBlobSettings, IOptions<ErrorCode> errorCodes, ISasTokenGenerator sasTokenGenerator,
+            IPublishEndpoint publishEndpoint)
         {
             _azureBlobSettings = azureBlobSettings.Value;
             _errorCodes = errorCodes.Value;
@@ -29,6 +33,7 @@ namespace AzureBlob.API.Repositories
             var blobUri = $"https://{_azureBlobSettings.AccountName}.blob.core.windows.net";
             _blobServiceClient = new BlobServiceClient(new Uri(blobUri), sharedKeyCredential);
             _sasTokenGenerator = sasTokenGenerator; 
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<IActionResult> GetAttachment(string fileName, string folderName)
@@ -136,6 +141,13 @@ namespace AzureBlob.API.Repositories
                 await blobClient.UploadAsync(compressedFileStream, new BlobHttpHeaders { ContentType = attachment.ContentType });
                 // Delete the temporary file
                 // File.Delete(tempFilePath);
+                var eventMessage = new AzureAttachmentEvent()
+                {
+                    FilePath = blobClient.Uri.ToString(),
+                    FileName = attachment.FileName,
+                    ContentType = attachment.ContentType
+                };
+                await _publishEndpoint.Publish(eventMessage);
                 return JsonUtil.Success(new
                 {
                     FilePath = blobClient.Uri.ToString(),
