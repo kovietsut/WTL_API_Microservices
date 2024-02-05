@@ -11,6 +11,7 @@ using Shared.DTOs;
 using Microsoft.Extensions.Options;
 using FluentValidation;
 using Newtonsoft.Json;
+using Microsoft.IdentityModel.Tokens;
 
 namespace User.API.Repositories
 {
@@ -39,7 +40,8 @@ namespace User.API.Repositories
                     || x.Address.Contains(searchText.Trim()) || x.Gender.Contains(searchText.Trim()) || x.Email.Contains(searchText.Trim())))
                     .Select(x => new
                     {
-                        UserId = x.Id, x.IsEnabled, x.FullName, x.Email, x.PhoneNumber, x.AvatarPath, x.Gender, x.Address
+                        UserId = x.Id, x.IsEnabled, x.FullName, x.Email, x.PhoneNumber, x.AvatarPath, x.Gender, x.Address, 
+                        x.RoleId, RoleName = x.Role.Name
                     });
                 var listData = list.Skip(((int)pageNumber - 1) * (int)pageSize)
                     .Take((int)pageSize).OrderByDescending(x => x.UserId).ToList();
@@ -69,16 +71,36 @@ namespace User.API.Repositories
             if (!string.IsNullOrEmpty(cacheUser))
             {
                 var response = JsonConvert.DeserializeObject<UserEntity>(cacheUser)!;
-                return JsonUtil.Success(response);
+                var resultCache = new
+                {
+                    response.Id,
+                    response.IsEnabled,
+                    response.RoleId,
+                    response.Email,
+                    response.GoogleUserId,
+                    response.FullName,
+                    response.PhoneNumber,
+                    response.Address,
+                    response.Gender,
+                    response.AvatarPath,
+                    response.CreatedAt,
+                    response.ModifiedAt
+                };
+                return JsonUtil.Success(resultCache);
             }
             var user = await GetUserById(userId);
             if (user == null)
             {
                 return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "User does not exist");
             }
+            var result = new
+            {
+                user.Id, user.IsEnabled, user.RoleId, user.Email, user.GoogleUserId, user.FullName, user.PhoneNumber, user.Address, 
+                user.Gender, user.AvatarPath, user.CreatedAt, user.ModifiedAt
+            };
             // Store user to cache
-            await _iRedisCacheRepository.SetCachedResponseAsync(key, user);
-            return JsonUtil.Success(user);
+            await _iRedisCacheRepository.SetCachedResponseAsync(key, result);
+            return JsonUtil.Success(result);
         }
 
         public async Task<IActionResult> CreateUserAsync(CreateUserDto model)
@@ -151,8 +173,11 @@ namespace User.API.Repositories
                 {
                     return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Phone number existed");
                 }
+                if (currentUser.RoleId == 1)
+                {
+                    currentUser.RoleId = model.RoleId;
+                }
                 currentUser.ModifiedAt = DateTime.Now;
-                currentUser.RoleId = model.RoleId;
                 currentUser.Email = model.Email.Trim();
                 currentUser.FullName = model.FullName != null ? model.FullName.Trim() : model.FullName;
                 currentUser.PhoneNumber = model.PhoneNumber.Trim();
@@ -179,6 +204,42 @@ namespace User.API.Repositories
                 await UpdateAsync(user);
             }
             return JsonUtil.Success(id);
+        }
+
+        public async Task<IActionResult> RemoveSoftListUser(string ids)
+        {
+            try
+            {
+                await BeginTransactionAsync();
+                var list = new List<UserEntity>();
+                if (ids.IsNullOrEmpty())
+                {
+                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Ids cannot be null");
+                }
+                var listIds = Util.SplitStringToArray(ids);
+                // List User
+                var users = FindAll().Where(x => listIds.Contains(x.Id));
+                if (users == null || users.Count() == 0)
+                {
+                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Cannot get list user");
+                }
+                foreach (var genre in users)
+                {
+                    genre.IsEnabled = false;
+                    list.Add(genre);
+                }
+                var listRemoved = users.Select(x => x.Id).ToList();
+                if (list.Count != 0)
+                {
+                    await UpdateListAsync(list);
+                }
+                await EndTransactionAsync();
+                return JsonUtil.Success(listRemoved);
+            }
+            catch (Exception ex)
+            {
+                return JsonUtil.Error(StatusCodes.Status500InternalServerError, _errorCodes.Status500.APIServerError, ex.Message);
+            }
         }
     }
 }

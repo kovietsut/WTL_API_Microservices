@@ -46,5 +46,11 @@ namespace User.API.Controllers
         {
             return await _iUserRepository.DeleteUserAsync(userId);
         }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteList(string ids)
+        {
+            return await _iUserRepository.RemoveSoftListUser(ids);
+        }
     }
 }

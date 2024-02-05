@@ -14,5 +14,6 @@ namespace User.API.Repositories.Interfaces
         Task<IActionResult> CreateUserAsync(CreateUserDto model);
         Task<IActionResult> UpdateUserAsync(int userId, UpdateUserDto model);
         Task<IActionResult> DeleteUserAsync(long id);
+        Task<IActionResult> RemoveSoftListUser(string ids);
     }
 }
