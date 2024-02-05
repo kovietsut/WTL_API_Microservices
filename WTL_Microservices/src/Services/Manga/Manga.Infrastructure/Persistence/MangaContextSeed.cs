@@ -63,7 +63,7 @@ namespace Manga.Infrastructure.Persistence
                         Type = "TruyenTranh",
                         Status = "DuyetThanhCong",
                         AmountOfReadings = 0,
-                        CoverImage = "https://webtruyenlo.blob.core.windows.net/test/1416557e-a142-4028-8e9a-de82b6c96f13test1.jpg",
+                        CoverImage = "https://webtruyenloofficial.blob.core.windows.net/test/f8578341-37ec-4b60-9618-2469852b23d09999atest96.jpeg",
                         Language = (Shared.Enums.LanguageEnum)1,
                         HasAdult = true
                     },
@@ -79,7 +79,7 @@ namespace Manga.Infrastructure.Persistence
                         Type = "TruyenTranh",
                         Status = "DuyetThanhCong",
                         AmountOfReadings = 0,
-                        CoverImage = "https://webtruyenlo.blob.core.windows.net/test/1416557e-a142-4028-8e9a-de82b6c96f13test1.jpg",
+                        CoverImage = "https://webtruyenloofficial.blob.core.windows.net/test/f8578341-37ec-4b60-9618-2469852b23d09999atest96.jpeg",
                         Language = (Shared.Enums.LanguageEnum)1,
                         HasAdult = true
                     }
@@ -202,7 +202,7 @@ namespace Manga.Infrastructure.Persistence
                         NumberOfChapter = 10,
                         Name = "Chapter 1",
                         HasDraft = true,
-                        ThumbnailImage = "https://webtruyenlo.blob.core.windows.net/test/1416557e-a142-4028-8e9a-de82b6c96f13test1.jpg",
+                        ThumbnailImage = "https://webtruyenloofficial.blob.core.windows.net/test/f8578341-37ec-4b60-9618-2469852b23d09999atest96.jpeg",
                         PublishDate = DateTimeOffset.ParseExact("2024-01-15 10:30:00.0000000 +00:00", "yyyy-MM-dd HH:mm:ss.fffffff zzz", System.Globalization.CultureInfo.InvariantCulture),
                         HasComment = true,
                         Language = (Shared.Enums.LanguageEnum)1,
@@ -257,10 +257,10 @@ namespace Manga.Infrastructure.Persistence
                         CreatedBy = 1,
                         ModifiedBy = null,
                         ChapterId = 1,
-                        Name = "1416557e-a142-4028-8e9a-de82b6c96f13test1.jpg",
+                        Name = "f8578341-37ec-4b60-9618-2469852b23d09999atest96.jpeg",
                         FileSize = "12MB",
                         MimeType = "JPEG",
-                        FilePath = "https://webtruyenlo.blob.core.windows.net/test/1416557e-a142-4028-8e9a-de82b6c96f13test1.jpg"
+                        FilePath = "https://webtruyenloofficial.blob.core.windows.net/test/f8578341-37ec-4b60-9618-2469852b23d09999atest96.jpeg"
                     }
                 );
                 await _context.SaveChangesAsync();
