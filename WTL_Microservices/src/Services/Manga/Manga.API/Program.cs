@@ -19,7 +19,7 @@ try
     builder.Services.ConfigureAzureBlob(builder.Configuration);
     builder.Services.ConfigureJWT(builder.Configuration);
     builder.Services.ConfigureErrorCode(builder.Configuration);
-    builder.Services.ConfigureMassTransit();
+    //builder.Services.ConfigureMassTransit();
     builder.Services.AddInfrastructure();
     var app = builder.Build();
     app.UseInfrastructure();
