@@ -53,8 +53,12 @@ namespace Infrastructure.Middlewares
             PathWithoutToken.USER_LOGIN,
             PathWithoutToken.USER_SIGNUP,
             PathWithoutToken.REFRESH_TOKEN,
+            PathWithoutToken.MANGA_PATH,
+            PathWithoutToken.CHAPTER_PATH,
+            PathWithoutToken.GENRE_PATH,
+            PathWithoutToken.COMMENT_PATH
         };
-            string[] regexSpecification = { "", "", "" };
+            string[] regexSpecification = { "", "", "", "", "", "", "", "", "" };
             var index = 0;
             //current path
             var api = context.Request.Path.ToString();

@@ -19,6 +19,7 @@ namespace Manga.API.Controllers
             _mediator = mediator;
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(long id)
         {
@@ -27,6 +28,7 @@ namespace Manga.API.Controllers
             return result;
         }
 
+        [AllowAnonymous]
         [HttpGet("get-list")]
         public async Task<IActionResult> GetList(int? pageNumber, int? pageSize, string? searchText)
         {
