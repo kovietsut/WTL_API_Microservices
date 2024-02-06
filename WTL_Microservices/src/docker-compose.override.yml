@@ -74,3 +74,11 @@ services:
     ports:
       - "6002:80"
     restart: always
+  azure.api:
+    container_name: azure.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - "6003:80"
+    restart: always

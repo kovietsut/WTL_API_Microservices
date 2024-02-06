@@ -31,6 +31,12 @@ services:
       context: .
       dockerfile: Services/Manga/Manga.API/Dockerfile
 
+  azure.api:
+    image: ${DOCKER_REGISTRY-}azure-api:${PLATFORM:-linux}-${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Services/AzureBlob/AzureBlob.API/Dockerfile
+
 #network section
 networks:
   default:
