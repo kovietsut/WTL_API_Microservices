@@ -8,10 +8,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Shared.Common;
+using Shared.Common.Interfaces;
 using Shared.DTOs;
 using Shared.DTOs.Manga;
 using Shared.DTOs.MangaGenre;
 using Shared.SeedWork;
+using System;
 using MangaEntity = Manga.Infrastructure.Entities.Manga;
 
 namespace Manga.Application.Common.Repositories
@@ -20,12 +23,15 @@ namespace Manga.Application.Common.Repositories
     {
         private readonly ErrorCode _errorCodes;
         private readonly IMangaGenreRepository _mangaGenreRepository;
+        private readonly ISasTokenGenerator _sasTokenGenerator;
+
         public MangaRepository(MangaContext dbContext, IUnitOfWork<MangaContext> unitOfWork, IMangaGenreRepository mangaGenreRepository, 
-            IOptions<ErrorCode> errorCode):
+            IOptions<ErrorCode> errorCode, ISasTokenGenerator sasTokenGenerator) :
             base(dbContext, unitOfWork)
         {
             _errorCodes = errorCode.Value;
             _mangaGenreRepository = mangaGenreRepository;
+            _sasTokenGenerator = sasTokenGenerator;
         }
 
         public Task<MangaEntity> GetMangaById(long mangaId) => FindByCondition(x => x.Id == mangaId).SingleOrDefaultAsync();
@@ -48,7 +54,7 @@ namespace Manga.Application.Common.Repositories
                 manga.Type,
                 manga.Status,
                 manga.AmountOfReadings,
-                manga.CoverImage,
+                CoverImage = _sasTokenGenerator.GenerateCoverImageUriWithSas(manga.CoverImage),
                 manga.Language,
                 manga.HasAdult
             };
@@ -72,7 +78,7 @@ namespace Manga.Application.Common.Repositories
                         x.Type,
                         x.Status,
                         x.AmountOfReadings,
-                        x.CoverImage,
+                        CoverImage = _sasTokenGenerator.GenerateCoverImageUriWithSas(x.CoverImage),
                         x.Language,
                         x.HasAdult
                     });

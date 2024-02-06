@@ -22,10 +22,9 @@ namespace AzureBlob.API.Repositories
         private readonly BlobServiceClient _blobServiceClient;
         private readonly ErrorCode _errorCodes;
         private readonly ISasTokenGenerator _sasTokenGenerator;
-        private readonly IPublishEndpoint _publishEndpoint;
+        //private readonly IPublishEndpoint _publishEndpoint;
 
-        public AzureBlobRepository(IOptions<AzureBlobSettings> azureBlobSettings, IOptions<ErrorCode> errorCodes, ISasTokenGenerator sasTokenGenerator,
-            IPublishEndpoint publishEndpoint)
+        public AzureBlobRepository(IOptions<AzureBlobSettings> azureBlobSettings, IOptions<ErrorCode> errorCodes, ISasTokenGenerator sasTokenGenerator)
         {
             _azureBlobSettings = azureBlobSettings.Value;
             _errorCodes = errorCodes.Value;
@@ -33,7 +32,6 @@ namespace AzureBlob.API.Repositories
             var blobUri = $"https://{_azureBlobSettings.AccountName}.blob.core.windows.net";
             _blobServiceClient = new BlobServiceClient(new Uri(blobUri), sharedKeyCredential);
             _sasTokenGenerator = sasTokenGenerator; 
-            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<IActionResult> GetAttachment(string fileName, string folderName)
@@ -147,7 +145,7 @@ namespace AzureBlob.API.Repositories
                     FileName = attachment.FileName,
                     ContentType = attachment.ContentType
                 };
-                await _publishEndpoint.Publish(eventMessage);
+                //await _publishEndpoint.Publish(eventMessage);
                 return JsonUtil.Success(new
                 {
                     FilePath = blobClient.Uri.ToString(),
