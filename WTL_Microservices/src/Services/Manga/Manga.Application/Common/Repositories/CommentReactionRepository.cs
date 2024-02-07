@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Shared.Common.Interfaces;
 using Shared.DTOs;
+using Shared.DTOs.Comment;
 using Shared.DTOs.CommentReaction;
 using Shared.SeedWork;
 using System;
@@ -31,34 +32,58 @@ namespace Manga.Application.Common.Repositories
             _baseAuthService = baseAuthService;
         }
 
-        public Task<ChapterCommentReaction> GetById(long commentReactionId) => FindByCondition(x => x.Id == commentReactionId).SingleOrDefaultAsync();
-
-        public async Task<IActionResult> GetCommentReaction(long commentReactionId)
+        public async Task<IActionResult> Create(CommentReactionDto model)
         {
-            var commentReaction = await GetById(commentReactionId);
-            if (commentReaction == null)
+            try
             {
-                return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "CommentReaction does not exist");
+                var validator = new ChapterCommentReactionValidator();
+                var check = validator.Validate(model);
+                if (!check.IsValid)
+                {
+                    return JsonUtil.Errors(StatusCodes.Status400BadRequest, _errorCodes.Status400.ConstraintViolation, check.Errors);
+                }
+                // Check if UserId & ChapterCommentId is the same
+                var checkTheSame = Any(x => x.UserId == model.UserId && x.ChapterCommentId == model.ChapterCommentId);
+                if (checkTheSame) return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Like existed");
+                var chapterCommentReaction = new ChapterCommentReaction()
+                {
+                    IsEnabled = true,
+                    IsLiked = model.IsLiked,
+                    UserId = model.UserId,
+                    ChapterCommentId = model.ChapterCommentId
+                };
+                await CreateAsync(chapterCommentReaction);
+                return JsonUtil.Success(new
+                {
+                    chapterCommentReaction.Id, chapterCommentReaction.IsEnabled, chapterCommentReaction.UserId,
+                    chapterCommentReaction.ChapterCommentId, chapterCommentReaction.IsLiked,
+                });
             }
-            var commentReactionResult = new
+            catch (UnauthorizedAccessException e)
             {
-                commentReaction.Id,
-                commentReaction.IsEnabled,
-                commentReaction.IsLiked
-            };
-            return JsonUtil.Success(commentReactionResult);
+                return JsonUtil.Error(StatusCodes.Status401Unauthorized, _errorCodes.Status401.Unauthorized, e.Message);
+            }
         }
 
-        //public async Task CreateChapterCommentReaction(bool isLiked, long userId, long chapterCommentId)
-        //{
-        //    var chapterCommentReaction = new ChapterCommentReaction()
-        //    {
-        //        IsEnabled = true,
-        //        IsLiked = isLiked,
-        //        UserId = userId,
-        //        ChapterCommentId = chapterCommentId
-        //    };
-        //    await CreateAsync(chapterCommentReaction);
-        //}
+        public async Task<IActionResult> Update(long commentId, long userId, CommentReactionDto model)
+        {
+            try
+            {
+                var validator = new ChapterCommentReactionValidator();
+                var check = validator.Validate(model);
+                if (!check.IsValid)
+                {
+                    return JsonUtil.Errors(StatusCodes.Status400BadRequest, _errorCodes.Status400.ConstraintViolation, check.Errors);
+                }
+                var commentReaction = FindByCondition(x => x.ChapterCommentId == commentId && x.UserId == userId).FirstOrDefault();
+                commentReaction.IsLiked = model.IsLiked;
+                await UpdateAsync(commentReaction);
+                return JsonUtil.Success(commentReaction.Id);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return JsonUtil.Error(StatusCodes.Status401Unauthorized, _errorCodes.Status401.Unauthorized, e.Message);
+            }
+        }
     }
 }

@@ -56,5 +56,10 @@ namespace Infrastructure.Common.Repositories
         public async Task<T?> GetByIdAsync(K id, params Expression<Func<T, object>>[] includeProperties) =>
             await FindByCondition(x => x.Id.Equals(id), trackChanges: false, includeProperties)
                 .FirstOrDefaultAsync();
+
+        public bool Any(Expression<Func<T, bool>> predicate)
+        {
+            return _dbContext.Set<T>().Any(predicate);
+        }
     }
 }

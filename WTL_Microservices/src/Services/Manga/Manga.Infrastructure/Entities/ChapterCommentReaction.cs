@@ -1,4 +1,6 @@
 ﻿using Contracts.Domains;
+using FluentValidation;
+using Shared.DTOs.Comment;
 using System;
 using System.Collections.Generic;
 using System.Linq;

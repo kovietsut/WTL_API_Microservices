@@ -20,6 +20,7 @@ namespace Contracts.Domains.Interfaces
 
         Task<T?> GetByIdAsync(K id);
         Task<T?> GetByIdAsync(K id, params Expression<Func<T, object>>[] includeProperties);
+        bool Any(Expression<Func<T, bool>> predicate);
     }
 
     public interface IRepositoryQueryBase<T, K, TContext> : IRepositoryQueryBase<T, K> where T : EntityBase<K>

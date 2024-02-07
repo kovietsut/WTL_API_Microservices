@@ -10,6 +10,7 @@ namespace Manga.Application.Common.Repositories.Interfaces
 {
     public interface ICommentReactionRepository
     {
-        Task<IActionResult> GetCommentReaction(long commentReactionId);
+        Task<IActionResult> Create(CommentReactionDto model);
+        Task<IActionResult> Update(long commentId, long userId, CommentReactionDto model);
     }
 }
