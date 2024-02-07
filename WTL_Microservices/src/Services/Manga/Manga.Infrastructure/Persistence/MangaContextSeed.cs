@@ -230,18 +230,6 @@ namespace Manga.Infrastructure.Persistence
                 );
                 await _context.SaveChangesAsync();
             }
-            if(!_context.ChapterCommentReactions.Any())
-            {
-                await _context.ChapterCommentReactions.AddRangeAsync(
-                    new ChapterCommentReaction
-                    {
-                        IsEnabled = true,
-                        IsLiked = true,
-                        UserId = 1,
-                        ChapterCommentId = 1
-                    }    
-                );
-            }
             if (!_context.ChapterComments.Any())
             {
                 await _context.ChapterComments.AddRangeAsync(
@@ -258,6 +246,18 @@ namespace Manga.Infrastructure.Persistence
                     }
                 );
                 await _context.SaveChangesAsync();
+            }
+            if (!_context.ChapterCommentReactions.Any())
+            {
+                await _context.ChapterCommentReactions.AddRangeAsync(
+                    new ChapterCommentReaction
+                    {
+                        IsEnabled = true,
+                        IsLiked = true,
+                        UserId = 1,
+                        ChapterCommentId = 1
+                    }    
+                );
             }
             if (!_context.ChapterImages.Any())
             {
