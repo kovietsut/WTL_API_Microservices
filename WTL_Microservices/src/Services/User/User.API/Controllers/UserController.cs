@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Shared.DTOs.User;
 using User.API.Repositories.Interfaces;
 
@@ -8,6 +9,7 @@ namespace User.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
+    [EnableRateLimiting("fixed")]
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _iUserRepository;

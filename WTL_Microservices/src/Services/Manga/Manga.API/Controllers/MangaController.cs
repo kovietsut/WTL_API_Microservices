@@ -3,6 +3,7 @@ using Manga.Application.Features.Mangas.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Shared.DTOs.Manga;
 
 namespace Manga.API.Controllers
@@ -10,6 +11,7 @@ namespace Manga.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
+    [EnableRateLimiting("fixed")]
     public class MangaController : ControllerBase
     {
         private readonly IMediator _mediator;

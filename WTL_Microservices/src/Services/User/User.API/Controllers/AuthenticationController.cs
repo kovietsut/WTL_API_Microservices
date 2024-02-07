@@ -10,12 +10,14 @@ using System.Text;
 using Entity = User.API.Entities.User;
 using User.API.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace User.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
+    [EnableRateLimiting("fixed")]
     public class AuthenticationController : ControllerBase
     {
         private readonly IConfiguration _configuration;

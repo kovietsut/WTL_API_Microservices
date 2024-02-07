@@ -20,6 +20,8 @@ using Shared.Common;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MassTransit;
 using Manga.API.Application.IntegrationEvents.EventsHanler;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 namespace Manga.API.Extensions
 {
@@ -150,6 +152,22 @@ namespace Manga.API.Extensions
                     //});
                     cfg.ConfigureEndpoints(ctx);
                 });
+            });
+        }
+
+        public static void ConfigureRateLimtter(this IServiceCollection services)
+        {
+            services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+                options.AddPolicy("fixed", httpContext =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
+                            factory: _ => new FixedWindowRateLimiterOptions
+                            {
+                                PermitLimit = 4,
+                                Window = TimeSpan.FromSeconds(12)
+                            }));
             });
         }
 

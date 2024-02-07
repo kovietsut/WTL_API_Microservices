@@ -1,6 +1,7 @@
 ﻿using Manga.Application.Common.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Shared.DTOs.CommentReaction;
 
 namespace Manga.API.Controllers
@@ -8,6 +9,7 @@ namespace Manga.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
+    [EnableRateLimiting("fixed")]
     public class CommentReactionController : ControllerBase
     {
         private readonly ICommentReactionRepository _reactionRepository;

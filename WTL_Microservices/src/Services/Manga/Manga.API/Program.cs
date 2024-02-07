@@ -21,6 +21,7 @@ try
     builder.Services.ConfigureErrorCode(builder.Configuration);
     //builder.Services.ConfigureMassTransit();
     builder.Services.AddInfrastructure();
+    builder.Services.ConfigureRateLimtter();
     var app = builder.Build();
     app.UseInfrastructure();
     using (var scope = app.Services.CreateScope())

@@ -16,6 +16,7 @@ using MassTransit;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Infrastructure.Extensions;
 using EventBus.Messages.IntegrationEvents.Interfaces;
+using System.Threading.RateLimiting;
 
 namespace AzureBlob.API.Extensions
 {
@@ -113,6 +114,22 @@ namespace AzureBlob.API.Extensions
                 });
                 // Publish submit azure message, instead of sending it to a specific queue directly.
                 config.AddRequestClient<IAzureAttachmentEvent>();
+            });
+        }
+
+        public static void ConfigureRateLimtter(this IServiceCollection services)
+        {
+            services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+                options.AddPolicy("fixed", httpContext =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
+                            factory: _ => new FixedWindowRateLimiterOptions
+                            {
+                                PermitLimit = 4,
+                                Window = TimeSpan.FromSeconds(12)
+                            }));
             });
         }
 
