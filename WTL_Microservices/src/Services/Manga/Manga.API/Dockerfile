@@ -21,7 +21,7 @@ WORKDIR "/src/Services/Manga/Manga.API"
 RUN dotnet build "Manga.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Manga.API.csproj" -c Release -o /app/publish
+RUN dotnet publish "Manga.API.csproj" -c Release -o /app/publish 
 
 FROM base AS final
 WORKDIR /app
