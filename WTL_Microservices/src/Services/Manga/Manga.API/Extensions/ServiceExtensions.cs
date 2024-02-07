@@ -173,6 +173,8 @@ namespace Manga.API.Extensions
             .AddScoped<IChapterImageRepository, ChapterImageRepository>()
             .AddScoped<ISasTokenGenerator, SasTokenGenerator>()
             .AddScoped<IBaseAuthService, BaseAuthService>()
+            .AddScoped<ICommentRepository, CommentRepository>()
+            .AddScoped<ICommentReactionRepository, CommentReactionRepository>()
             ;
     }
 }

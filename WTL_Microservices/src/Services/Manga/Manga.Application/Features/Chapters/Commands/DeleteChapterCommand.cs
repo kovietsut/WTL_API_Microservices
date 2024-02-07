@@ -1,13 +1,7 @@
 ﻿using Manga.Application.Common.Repositories.Interfaces;
-using Manga.Application.Features.Genres.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Manga.Application.Features.Chapters.Commands
 {
@@ -31,9 +25,9 @@ namespace Manga.Application.Features.Chapters.Commands
         public async Task<IActionResult> Handle(DeleteChapterCommand query, CancellationToken cancellationToken)
         {
             _logger.Information($"BEGIN: {MethodName} - Id: {query.Id}");
-            var genre = await _chapterRepository.Disable(query.Id);
+            var chapter = await _chapterRepository.Disable(query.Id);
             _logger.Information($"END: {MethodName} - Id: {query.Id}");
-            return genre;
+            return chapter;
         }
     }
 }

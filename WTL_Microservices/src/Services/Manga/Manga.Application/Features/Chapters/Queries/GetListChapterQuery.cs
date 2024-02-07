@@ -27,9 +27,9 @@ namespace Manga.Application.Features.Chapters.Queries
         public async Task<IActionResult> Handle(GetListChapterQuery query, CancellationToken cancellationToken)
         {
             _logger.Information($"BEGIN: {MethodName} - SearchText: {query.SearchText}");
-            var genres = await _chapterRepository.GetList(query.PageNumber, query.PageSize, query.SearchText);
+            var chapters = await _chapterRepository.GetList(query.PageNumber, query.PageSize, query.SearchText);
             _logger.Information($"END: {MethodName} - SearchText: {query.SearchText}");
-            return genres;
+            return chapters;
         }
     }
 }

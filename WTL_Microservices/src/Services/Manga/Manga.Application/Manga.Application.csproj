@@ -19,9 +19,4 @@
     <ProjectReference Include="..\Manga.Infrastructure\Manga.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Comments\Commands\" />
-    <Folder Include="Features\Comments\Queries\" />
-  </ItemGroup>
-
 </Project>

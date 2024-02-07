@@ -25,6 +25,7 @@ namespace Manga.Infrastructure.Persistence
         public virtual DbSet<MangaGenre> MangasGenres { get; set; }
 
         public virtual DbSet<MangaInteraction> MangaInteractions { get; set; }
+        public virtual DbSet<ChapterCommentReaction> ChapterCommentReactions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -65,6 +66,17 @@ namespace Manga.Infrastructure.Persistence
 
                 entity.HasOne(d => d.ParentComment).WithMany(p => p.InverseParentComment)
                     .HasForeignKey(d => d.ParentCommentId);
+            });
+
+            modelBuilder.Entity<ChapterCommentReaction>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.UserId);
+                entity.Property(e => e.IsLiked);
+
+                entity.HasOne(d => d.ChapterComment).WithMany(p => p.ChapterCommentReactions)
+                    .HasForeignKey(d => d.ChapterCommentId);
             });
 
             modelBuilder.Entity<ChapterImage>(entity =>

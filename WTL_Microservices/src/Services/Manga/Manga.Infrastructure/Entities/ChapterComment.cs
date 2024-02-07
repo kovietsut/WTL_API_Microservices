@@ -28,5 +28,6 @@ namespace Manga.Infrastructure.Entities
         public virtual ICollection<ChapterComment> InverseParentComment { get; set; } = new List<ChapterComment>();
 
         public virtual ChapterComment? ParentComment { get; set; }
+        public virtual ICollection<ChapterCommentReaction> ChapterCommentReactions { get; set; } = new List<ChapterCommentReaction>();
     }
 }
