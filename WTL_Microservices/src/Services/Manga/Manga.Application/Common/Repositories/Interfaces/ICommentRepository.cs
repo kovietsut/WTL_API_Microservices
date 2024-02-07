@@ -10,7 +10,7 @@ namespace Manga.Application.Common.Repositories.Interfaces
 {
     public interface ICommentRepository
     {
-        Task<IActionResult> GetList(int? pageNumber, int? pageSize, string? searchText, long? chapterId, long? mangaId);
+        Task<IActionResult> GetList(int? pageNumber, int? pageSize, string? searchText, long? chapterId);
         Task<IActionResult> Get(long commendId);
         Task<IActionResult> Create(CreateCommentDto model);
         Task<IActionResult> Update(long commentId, UpdateCommentDto model);

@@ -30,9 +30,9 @@ namespace Manga.API.Controllers
 
         [AllowAnonymous]
         [HttpGet("get-list")]
-        public async Task<IActionResult> GetList(int? pageNumber, int? pageSize, string? searchText, long? chapterId, long? mangaId)
+        public async Task<IActionResult> GetList(int? pageNumber, int? pageSize, string? searchText, long? chapterId)
         {
-            var query = new GetListCommentQuery(pageNumber, pageSize, searchText, chapterId, mangaId);
+            var query = new GetListCommentQuery(pageNumber, pageSize, searchText, chapterId);
             var result = await _mediator.Send(query);
             return result;
         }

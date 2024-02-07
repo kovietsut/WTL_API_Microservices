@@ -29,13 +29,13 @@ namespace Manga.Application.Common.Repositories
 
         public Task<ChapterComment> GetCommentById(long commentId) => FindByCondition(x => x.Id == commentId).SingleOrDefaultAsync();
 
-        public async Task<IActionResult> GetList(int? pageNumber, int? pageSize, string? searchText, long? chapterId, long? mangaId)
+        public async Task<IActionResult> GetList(int? pageNumber, int? pageSize, string? searchText, long? chapterId)
         {
             try
             {
                 pageNumber ??= 1; pageSize ??= 10;
                 var list = FindAll().Where(x =>
-                    (chapterId == null || x.ChapterId ==  chapterId) && (mangaId == null || x.Chapter.MangaId == mangaId) &&
+                    (chapterId == null || x.ChapterId ==  chapterId) &&
                     x.IsEnabled == true && (searchText == null || x.Text.Contains(searchText.Trim())))
                 .Select(x => new
                 {
@@ -43,7 +43,7 @@ namespace Manga.Application.Common.Repositories
                     x.IsEnabled, x.ParentCommentId,
                     x.CreatedBy, x.CreatedAt,
                     x.ModifiedBy, x.ModifiedAt,
-                    x.Text,
+                    x.Text, x.ChapterId,
                     Likes = x.ChapterCommentReactions.Count(fav => fav.ChapterCommentId == x.Id && fav.IsLiked == true),
                     DisLikes = x.ChapterCommentReactions.Count(fav => fav.ChapterCommentId == x.Id && fav.IsLiked == false)
                 });

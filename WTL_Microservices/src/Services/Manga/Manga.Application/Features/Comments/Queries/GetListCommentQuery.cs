@@ -5,13 +5,12 @@ using Serilog;
 
 namespace Manga.Application.Features.Comments.Queries
 {
-    public class GetListCommentQuery(int? pageNumber, int? pageSize, string? searchText, long? chapterId, long? mangaId) : IRequest<IActionResult>
+    public class GetListCommentQuery(int? pageNumber, int? pageSize, string? searchText, long? chapterId) : IRequest<IActionResult>
     {
         public string? SearchText { get; set; } = searchText;
         public int? PageNumber { get; set; } = pageNumber;
         public int? PageSize { get; set; } = pageSize;
         public long? ChapterId { get; set; } = chapterId;
-        public long? MangaId { get; set; } = mangaId;
     }
 
     public class GetListCommentQueryHandler : IRequestHandler<GetListCommentQuery, IActionResult>
@@ -29,7 +28,7 @@ namespace Manga.Application.Features.Comments.Queries
         public async Task<IActionResult> Handle(GetListCommentQuery query, CancellationToken cancellationToken)
         {
             _logger.Information($"BEGIN: {MethodName} - SearchText: {query.SearchText}");
-            var comments = await _commentRepository.GetList(query.PageNumber, query.PageSize, query.SearchText, query.ChapterId, query.MangaId);
+            var comments = await _commentRepository.GetList(query.PageNumber, query.PageSize, query.SearchText, query.ChapterId);
             _logger.Information($"END: {MethodName} - SearchText: {query.SearchText}");
             return comments;
         }
