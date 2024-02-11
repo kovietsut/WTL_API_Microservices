@@ -1,17 +1,38 @@
+using Hangfire.API.Extensions;
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+Log.Information($"Start {builder.Environment.ApplicationName} up");
 
-builder.Services.AddControllers();
+try
+{
+    builder.Host.AddAppConfigurations();
+    // Add services to the container.
+    builder.Services.AddApplicationServices();
+    builder.Services.ConfigureCors();
+    builder.Services.ConfigureSwagger();
+    builder.Services.ConfigureJWT(builder.Configuration);
+    builder.Services.ConfigureErrorCode(builder.Configuration);
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+    builder.Services.ConfigureRateLimtter();
+    builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
+    var app = builder.Build();
+    app.UseInfrastructure();
+    app.Run();
+}
+catch (Exception ex)
+{
+    string type = ex.GetType().Name;
+    if (type.Equals("StopTheHostException", StringComparison.Ordinal)) throw;
 
-// Configure the HTTP request pipeline.
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+    Log.Fatal(ex, $"Unhandled exception: {ex.Message}");
+}
+finally
+{
+    Log.Information($"Shut down {builder.Environment.ApplicationName} complete");
+    Log.CloseAndFlush();
+}
