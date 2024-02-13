@@ -193,6 +193,7 @@ namespace Manga.API.Extensions
             .AddScoped<IBaseAuthService, BaseAuthService>()
             .AddScoped<ICommentRepository, CommentRepository>()
             .AddScoped<ICommentReactionRepository, CommentReactionRepository>()
+            .AddScoped<IMangaReactionRepository, MangaReactionRepository>()
             ;
     }
 }
