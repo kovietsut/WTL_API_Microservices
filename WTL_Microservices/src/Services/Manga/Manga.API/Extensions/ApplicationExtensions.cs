@@ -1,5 +1,8 @@
-﻿using HealthChecks.UI.Client;
+﻿using Hangfire;
+using HangfireBasicAuthenticationFilter;
+using HealthChecks.UI.Client;
 using Infrastructure.Middlewares;
+using Manga.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace Manga.API.Extensions
@@ -11,7 +14,7 @@ namespace Manga.API.Extensions
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "User API");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Manga API");
                 c.DisplayRequestDuration();
             });
             app.UseMiddleware<JWTMiddleware>();

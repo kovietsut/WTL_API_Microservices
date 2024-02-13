@@ -22,6 +22,9 @@ using MassTransit;
 using Manga.API.Application.IntegrationEvents.EventsHanler;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using Manga.Application.Services.Interfaces;
+using Manga.Application.Services;
+using Hangfire;
 
 namespace Manga.API.Extensions
 {
@@ -69,8 +72,10 @@ namespace Manga.API.Extensions
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
             var databaseSettings = services.GetOptions<DatabaseSettings>(nameof(DatabaseSettings));
-            if (databaseSettings == null || string.IsNullOrEmpty(databaseSettings.ConnectionString))
+            if (databaseSettings == null || string.IsNullOrEmpty(databaseSettings.ConnectionString) 
+                || string.IsNullOrEmpty(databaseSettings.ConnectionHangfireString))
                 throw new ArgumentNullException("Connection string is not configured.");
+
 
             services.AddDbContext<MangaContext>(options =>
             {
@@ -78,6 +83,13 @@ namespace Manga.API.Extensions
                     builder =>
                         builder.MigrationsAssembly(typeof(MangaContext).Assembly.FullName));
             });
+            services.AddHangfire(option =>
+            {
+                option.UseSqlServerStorage(databaseSettings.ConnectionHangfireString)
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180).UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings();
+            });
+            services.AddHangfireServer();
             return services;
         }
 
@@ -171,6 +183,17 @@ namespace Manga.API.Extensions
             });
         }
 
+        public static void ConfigureRedis(this IServiceCollection services)
+        {
+            var settings = services.GetOptions<RedisSettings>(nameof(RedisSettings));
+            if (string.IsNullOrEmpty(settings.ConnectionString))
+                throw new ArgumentNullException("Redis Connection string is not configured.");
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = settings.ConnectionString;
+            });
+        }
+
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>
         services
             .AddAutoMapper(Assembly.GetExecutingAssembly())
@@ -194,6 +217,8 @@ namespace Manga.API.Extensions
             .AddScoped<ICommentRepository, CommentRepository>()
             .AddScoped<ICommentReactionRepository, CommentReactionRepository>()
             .AddScoped<IMangaReactionRepository, MangaReactionRepository>()
+            .AddScoped<IMangaInteractionService, MangaInteractionService>()
+            .AddScoped<IRedisCacheRepository, RedisCacheRepository>()
             ;
     }
 }

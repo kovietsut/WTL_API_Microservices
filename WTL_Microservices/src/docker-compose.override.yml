@@ -18,6 +18,12 @@ services:
     restart: always
     ports:
       - "6379:6379"
+  #redismangadb: redis
+  redismangadb:
+    container_name: redismangadb
+    restart: always
+    ports:
+      - "6380:6379"
   #mangadb: sql server
   mangadb:
     container_name: mangadb
@@ -29,6 +35,16 @@ services:
       - sqlserver_manga_data:/var/opt/mssql
     ports:
       - "1436:1433"
+  mangahangfiredb:
+    container_name: mangahangfiredb
+    environment:
+      SA_PASSWORD: "Magicgame123456"
+      ACCEPT_EULA: "Y"
+    restart: always
+    volumes:
+      - sqlserver_manga_hangfire_data:/var/opt/mssql
+    ports:
+      - "1437:1433"
   #infrastructure section
   rabbitmq:
     container_name: rabbitmq
@@ -68,9 +84,12 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=Server=mangadb;Database=MangaDb;User Id=sa;Password=Magicgame123456;Multipleactiveresultsets=true;TrustServerCertificate=true"
+      - "DatabaseSettings:ConnectionHangfireString=Server=mangahangfiredb;Database=HangfireMangaDb;User Id=sa;Password=Magicgame123456;Multipleactiveresultsets=true;TrustServerCertificate=true"
+      - "RedisSettings:ConnectionString=redismangadb:6379"
     depends_on:
       - mangadb
       - rabbitmq
+      - mangahangfiredb
     ports:
       - "6002:80"
     restart: always

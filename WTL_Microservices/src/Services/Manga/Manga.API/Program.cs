@@ -1,4 +1,7 @@
+using Hangfire;
+using HangfireBasicAuthenticationFilter;
 using Manga.API.Extensions;
+using Manga.Application.Services.Interfaces;
 using Manga.Infrastructure.Persistence;
 using Serilog;
 
@@ -16,6 +19,7 @@ try
     builder.Services.ConfigureHealthChecks();
     builder.Services.ConfigureCors();
     builder.Services.ConfigureSwagger();
+    builder.Services.ConfigureRedis();
     builder.Services.ConfigureAzureBlob(builder.Configuration);
     builder.Services.ConfigureJWT(builder.Configuration);
     builder.Services.ConfigureErrorCode(builder.Configuration);
@@ -23,6 +27,19 @@ try
     builder.Services.AddInfrastructure();
     builder.Services.ConfigureRateLimtter();
     var app = builder.Build();
+    // Jobs
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        Authorization = new[]
+                {
+                    new HangfireCustomBasicAuthenticationFilter
+                    {
+                        User = app.Configuration.GetSection("HangfireOptions:User").Value,
+                        Pass = app.Configuration.GetSection("HangfireOptions:Pass").Value
+                    }
+                }
+    });
+    RecurringJob.AddOrUpdate<IMangaInteractionService>("StoreMangaInteractionToDB", x => x.StoreMangaInteractionToDB(), Cron.Hourly);
     app.UseInfrastructure();
     using (var scope = app.Services.CreateScope())
     {

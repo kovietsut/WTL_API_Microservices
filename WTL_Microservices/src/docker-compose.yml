@@ -8,7 +8,13 @@ services:
   redisuserdb:
     image: redis:alpine
 
+  redismangadb:
+    image: redis:alpine
+
   mangadb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+
+  mangahangfiredb:
     image: mcr.microsoft.com/mssql/server:2019-latest
 
   #infrastructure section
@@ -49,6 +55,8 @@ volumes:
     name: sqlserver_user_data
   sqlserver_manga_data:
     name: sqlserver_manga_data
+  sqlserver_manga_hangfire_data:
+    name: sqlserver_manga_hangfire_data
   rabbitmq_data:
     name: rabbitmq_data
   portainer_data:
