@@ -24,5 +24,11 @@ namespace Manga.API.Controllers
         {
             return await _mangaReactionRepository.CreateMangaInteraction(model);
         }
+
+        [HttpPost("remove")]
+        public async Task<IActionResult> Remove([FromBody] MangaInteractionDto model)
+        {
+            return await _mangaReactionRepository.RemoveMangaInteraction(model);
+        }
     }
 }

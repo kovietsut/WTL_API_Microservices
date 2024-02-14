@@ -1,6 +1,7 @@
 ﻿using Contracts.Domains.Interfaces;
 using Infrastructure.Common.Repositories;
 using Manga.Application.Common.Repositories.Interfaces;
+using Manga.Application.Services.Interfaces;
 using Manga.Infrastructure.Entities;
 using Manga.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http;
@@ -24,14 +25,19 @@ namespace Manga.Application.Common.Repositories
         private readonly ErrorCode _errorCodes;
         private readonly IMangaGenreRepository _mangaGenreRepository;
         private readonly ISasTokenGenerator _sasTokenGenerator;
+        private readonly IMangaInteractionService _mangaInteractionService;
+        private readonly IMangaReactionRepository _mangaInteractionRepository;
 
         public MangaRepository(MangaContext dbContext, IUnitOfWork<MangaContext> unitOfWork, IMangaGenreRepository mangaGenreRepository, 
-            IOptions<ErrorCode> errorCode, ISasTokenGenerator sasTokenGenerator) :
+            IOptions<ErrorCode> errorCode, ISasTokenGenerator sasTokenGenerator, IMangaInteractionService mangaInteractionService,
+            IMangaReactionRepository mangaInteractionRepository) :
             base(dbContext, unitOfWork)
         {
             _errorCodes = errorCode.Value;
             _mangaGenreRepository = mangaGenreRepository;
             _sasTokenGenerator = sasTokenGenerator;
+            _mangaInteractionService = mangaInteractionService;
+            _mangaInteractionRepository = mangaInteractionRepository;
         }
 
         public Task<MangaEntity> GetMangaById(long mangaId) => FindByCondition(x => x.Id == mangaId).SingleOrDefaultAsync();
@@ -43,6 +49,9 @@ namespace Manga.Application.Common.Repositories
             {
                 return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Manga does not exist");
             }
+            var isFavorited = await _mangaInteractionService.CheckMangaChapterInteraction(manga.Id, null, "Favorite");
+            var genres = await _mangaGenreRepository.GetListMangaGenre(mangaId);
+            var favoriteMangas = await _mangaInteractionRepository.GetListMangaReaction(mangaId);
             var mangaResult = new
             {
                 manga.Id,
@@ -54,9 +63,12 @@ namespace Manga.Application.Common.Repositories
                 manga.Type,
                 manga.Status,
                 manga.AmountOfReadings,
-                CoverImage = _sasTokenGenerator.GenerateCoverImageUriWithSas(manga.CoverImage),
                 manga.Language,
-                manga.HasAdult
+                manga.HasAdult,
+                genres,
+                CoverImage = _sasTokenGenerator.GenerateCoverImageUriWithSas(manga.CoverImage),
+                isFavorited,
+                favoriteMangas
             };
             return JsonUtil.Success(mangaResult);
         }
@@ -80,7 +92,9 @@ namespace Manga.Application.Common.Repositories
                         x.AmountOfReadings,
                         CoverImage = _sasTokenGenerator.GenerateCoverImageUriWithSas(x.CoverImage),
                         x.Language,
-                        x.HasAdult
+                        x.HasAdult,
+                        Genres = x.MangasGenres.Select(item => item.Genre.Name).ToList(),
+                        FavoriteMangas = x.UserMangaInteractions.Count(fav => fav.MangaId == x.Id && fav.InteractionType == "Favorite")
                     });
                 var listData = list.Skip(((int)pageNumber - 1) * (int)pageSize)
                     .Take((int)pageSize).OrderByDescending(x => x.MangaId).ToList();

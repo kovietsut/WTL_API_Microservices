@@ -1,8 +1,5 @@
-﻿using Hangfire;
-using HangfireBasicAuthenticationFilter;
-using HealthChecks.UI.Client;
+﻿using HealthChecks.UI.Client;
 using Infrastructure.Middlewares;
-using Manga.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace Manga.API.Extensions

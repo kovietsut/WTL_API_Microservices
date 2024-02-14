@@ -12,6 +12,12 @@ namespace Manga.Application.Common.Repositories
         public MangaGenreRepository(MangaContext dbContext, IUnitOfWork<MangaContext> unitOfWork) :
             base(dbContext, unitOfWork){}
 
+        public async Task<List<string>> GetListMangaGenre(long mangaId)
+        {
+            var listMangaGenres = FindAll().Where(x => x.MangaId == mangaId).Select(item => item.Genre.Name).ToList();
+            return listMangaGenres;
+        }
+
         public async Task CreateMangaGenre(CreateMangaGenreDto model)
         {
             var mangaGenres = new List<MangaGenre>();

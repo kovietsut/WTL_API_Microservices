@@ -10,6 +10,7 @@ namespace Manga.Application.Services.Interfaces
 {
     public interface IMangaInteractionService
     {
-        Task StoreMangaInteractionToDB();
+        Task<bool> CheckMangaChapterInteraction(long mangaId, long? chapterId, string interactionType);
+        Task StoreMangaFavoriteToDB();
     }
 }

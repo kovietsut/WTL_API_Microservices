@@ -20,7 +20,6 @@ using Shared.Common;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MassTransit;
 using Manga.API.Application.IntegrationEvents.EventsHanler;
-using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using Manga.Application.Services.Interfaces;
 using Manga.Application.Services;
@@ -89,7 +88,11 @@ namespace Manga.API.Extensions
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_180).UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings();
             });
-            services.AddHangfireServer();
+            services.AddHangfireServer(options =>
+            {
+                options.Queues = new[] { "default", "priority" }; // Specify the queues
+                options.WorkerCount = 20; // Set the maximum degree of parallelism
+            });
             return services;
         }
 

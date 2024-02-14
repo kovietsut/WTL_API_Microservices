@@ -1,6 +1,7 @@
 ﻿using Contracts.Domains.Interfaces;
 using Infrastructure.Common.Repositories;
 using Manga.Application.Common.Repositories.Interfaces;
+using Manga.Application.Services.Interfaces;
 using Manga.Infrastructure.Entities;
 using Manga.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using Shared.Common.Interfaces;
 using Shared.DTOs;
 using Shared.DTOs.Chapter;
@@ -26,10 +26,11 @@ namespace Manga.Application.Common.Repositories
         private readonly IChapterImageRepository _chapterImageRepository;
         private readonly ISasTokenGenerator _sasTokenGenerator;
         private readonly IBaseAuthService _baseAuthService;
+        private readonly IMangaInteractionService _mangaInteractionService;
 
         public ChapterRepository(MangaContext dbContext, IUnitOfWork<MangaContext> unitOfWork, IMangaRepository mangaRepository,
             IChapterImageRepository chapterImageRepository, ISasTokenGenerator sasTokenGenerator, IOptions<ErrorCode> errorCode,
-            IBaseAuthService baseAuthService) :
+            IBaseAuthService baseAuthService, IMangaInteractionService mangaInteractionService) :
             base(dbContext, unitOfWork)
         {
             _errorCodes = errorCode.Value;
@@ -37,6 +38,7 @@ namespace Manga.Application.Common.Repositories
             _chapterImageRepository = chapterImageRepository;
             _sasTokenGenerator = sasTokenGenerator;
             _baseAuthService = baseAuthService;
+            _mangaInteractionService = mangaInteractionService;
         }
 
         public Task<Chapter> GetChapterById(long chapterId) => FindByCondition(x => x.Id == chapterId).SingleOrDefaultAsync();
@@ -84,13 +86,34 @@ namespace Manga.Application.Common.Repositories
                     return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "ChapterId is empty");
                 }
                 var chapter = await GetChapterById(chapterId);
-                var manga = await _mangaRepository.GetMangaById((long)chapter.MangaId);
-                if (manga.Type.Equals("TruyenTranh"))
+                if(chapter != null)
                 {
-                    var list = await _chapterImageRepository.GetListImagesByChapter(chapterId);
-                    return JsonUtil.Success(list);
+                    var manga = await _mangaRepository.GetMangaById((long)chapter.MangaId);
+                    var isFavorited = await _mangaInteractionService.CheckMangaChapterInteraction(manga.Id, chapter.Id, "Favorite");
+                    if (manga.Type.Equals("TruyenTranh"))
+                    {
+                        var list = await _chapterImageRepository.GetListImagesByChapter(chapterId);
+                        return JsonUtil.Success(new
+                        {
+                            MangaId = manga.Id,
+                            MangaName = manga.Name,
+                            ChapterId = chapter.Id,
+                            ChapterName = chapter.Name,
+                            images = list,
+                            isFavorited
+                        });
+                    }
+                    return JsonUtil.Success(new
+                    {
+                        MangaId = manga.Id,
+                        MangaName = manga.Name,
+                        ChapterId = chapter.Id,
+                        ChapterName = chapter.Name,
+                        chapter.Content,
+                        isFavorited
+                    });
                 }
-                return JsonUtil.Success(chapter.Content);
+                return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Chapter does not exist");
             }
             catch (UnauthorizedAccessException e)
             {

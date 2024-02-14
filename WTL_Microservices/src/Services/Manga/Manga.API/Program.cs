@@ -39,7 +39,7 @@ try
                     }
                 }
     });
-    RecurringJob.AddOrUpdate<IMangaInteractionService>("StoreMangaInteractionToDB", x => x.StoreMangaInteractionToDB(), Cron.Hourly);
+    RecurringJob.AddOrUpdate<IMangaInteractionService>("StoreMangaInteractionToDB", x => x.StoreMangaFavoriteToDB(), Cron.Hourly);
     app.UseInfrastructure();
     using (var scope = app.Services.CreateScope())
     {
