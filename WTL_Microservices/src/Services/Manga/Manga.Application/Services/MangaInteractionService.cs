@@ -3,18 +3,11 @@ using Infrastructure.Common.Repositories;
 using Manga.Application.Services.Interfaces;
 using Manga.Infrastructure.Entities;
 using Manga.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using ServiceStack.Redis;
 using Shared.Common.Interfaces;
 using Shared.DTOs;
-using Shared.DTOs.MangaChapterReaction;
-using Shared.DTOs.RedisCache;
-using Shared.SeedWork;
 
 namespace Manga.Application.Services
 {
@@ -126,6 +119,41 @@ namespace Manga.Application.Services
                 RedisEndpoint config = new RedisEndpoint { Host = "127.0.0.1", Port = 6380 };
                 RedisClient redisClient = new RedisClient(config);
                 var keys = redisClient.SearchKeys($"/api/interaction-manga-favorite*");
+                if (keys.Any())
+                {
+                    // List MangaInteractions
+                    foreach (var key in keys)
+                    {
+                        var cache = await _iRedisCacheRepository.GetCachedResponseAsync(key);
+                        if (!string.IsNullOrEmpty(cache))
+                        {
+                            var mangaInteraction = JsonConvert.DeserializeObject<MangaInteraction>(cache)!;
+                            list.Add(mangaInteraction);
+                        }
+                    }
+                    await CreateListAsync(list);
+                    // Clear cache
+                    foreach (var removedKey in keys)
+                    {
+                        await _iRedisCacheRepository.RemoveCached(removedKey);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task StoreChapterFavoriteToDB()
+        {
+            try
+            {
+                // Get list Manga Interactions
+                var list = new List<MangaInteraction>();
+                RedisEndpoint config = new RedisEndpoint { Host = "127.0.0.1", Port = 6380 };
+                RedisClient redisClient = new RedisClient(config);
+                var keys = redisClient.SearchKeys($"/api/interaction-chapter-favorite*");
                 if (keys.Any())
                 {
                     // List MangaInteractions

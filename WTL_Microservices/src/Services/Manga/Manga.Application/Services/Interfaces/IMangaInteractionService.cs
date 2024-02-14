@@ -12,5 +12,6 @@ namespace Manga.Application.Services.Interfaces
     {
         Task<bool> CheckMangaChapterInteraction(long mangaId, long? chapterId, string interactionType);
         Task StoreMangaFavoriteToDB();
+        Task StoreChapterFavoriteToDB();
     }
 }
