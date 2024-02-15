@@ -4,7 +4,6 @@ using Azure.Storage.Blobs.Models;
 using AzureBlob.API.Models;
 using AzureBlob.API.Repositories.Interfaces;
 using EventBus.Messages.IntegrationEvents.Events;
-using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Shared.Common.Interfaces;

@@ -1,6 +1,4 @@
 ﻿using AzureBlob.API.Repositories.Interfaces;
-using EventBus.Messages.IntegrationEvents.Events;
-using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;

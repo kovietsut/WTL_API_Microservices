@@ -1,7 +1,6 @@
 ﻿using Contracts.Domains.Interfaces;
 using Infrastructure.Common.Repositories;
 using Infrastructure.Common;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using Shared.Configurations;
 using Shared.DTOs;
@@ -12,10 +11,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Shared.Common;
 using Shared.Common.Interfaces;
-using MassTransit;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Infrastructure.Extensions;
-using EventBus.Messages.IntegrationEvents.Interfaces;
 using System.Threading.RateLimiting;
 
 namespace AzureBlob.API.Extensions
@@ -105,16 +102,16 @@ namespace AzureBlob.API.Extensions
 
             var mqConnection = new Uri(settings.HostAddress);
 
-            services.TryAddSingleton(KebabCaseEndpointNameFormatter.Instance);
-            services.AddMassTransit(config =>
-            {
-                config.UsingRabbitMq((ctx, cfg) =>
-                {
-                    cfg.Host(mqConnection);
-                });
-                // Publish submit azure message, instead of sending it to a specific queue directly.
-                config.AddRequestClient<IAzureAttachmentEvent>();
-            });
+            //services.TryAddSingleton(KebabCaseEndpointNameFormatter.Instance);
+            //services.AddMassTransit(config =>
+            //{
+            //    config.UsingRabbitMq((ctx, cfg) =>
+            //    {
+            //        cfg.Host(mqConnection);
+            //    });
+            //    // Publish submit azure message, instead of sending it to a specific queue directly.
+            //    config.AddRequestClient<IAzureAttachmentEvent>();
+            //});
         }
 
         public static void ConfigureRateLimtter(this IServiceCollection services)
