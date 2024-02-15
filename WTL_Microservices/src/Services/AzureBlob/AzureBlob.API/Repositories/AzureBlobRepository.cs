@@ -138,12 +138,12 @@ namespace AzureBlob.API.Repositories
                 await blobClient.UploadAsync(compressedFileStream, new BlobHttpHeaders { ContentType = attachment.ContentType });
                 // Delete the temporary file
                 // File.Delete(tempFilePath);
-                var eventMessage = new AzureAttachmentEvent()
-                {
-                    FilePath = blobClient.Uri.ToString(),
-                    FileName = attachment.FileName,
-                    ContentType = attachment.ContentType
-                };
+                //var eventMessage = new AzureAttachmentEvent()
+                //{
+                //    FilePath = blobClient.Uri.ToString(),
+                //    FileName = attachment.FileName,
+                //    ContentType = attachment.ContentType
+                //};
                 //await _publishEndpoint.Publish(eventMessage);
                 return JsonUtil.Success(new
                 {
