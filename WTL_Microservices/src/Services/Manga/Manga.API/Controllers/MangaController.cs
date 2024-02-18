@@ -11,7 +11,7 @@ namespace Manga.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    [EnableRateLimiting("fixed")]
+    //[EnableRateLimiting("fixed")]
     public class MangaController : ControllerBase
     {
         private readonly IMediator _mediator;

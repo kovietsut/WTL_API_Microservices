@@ -29,6 +29,12 @@ namespace Manga.Application.Common.Repositories
             _iRedisCacheRepository = iRedisCacheRepository;
         }
 
+        public async Task<List<MangaInteraction>> GetListMangaFollowing(long mangaId)
+        {
+            var listMangaReactions = FindAll().Where(x => x.MangaId == mangaId && x.InteractionType.Equals("Favorite")).ToList();
+            return listMangaReactions;
+        }
+
         public async Task<long> GetListMangaReaction(long mangaId)
         {
             var listMangaReactions = FindAll().Where(x => x.MangaId == mangaId && x.InteractionType.Equals("Favorite")).ToList();

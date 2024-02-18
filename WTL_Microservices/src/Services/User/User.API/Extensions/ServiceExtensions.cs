@@ -1,9 +1,12 @@
 ﻿using Contracts.Domains.Interfaces;
+using EventBus.Messages.IntegrationEvents.Interfaces;
 using Infrastructure.Common;
 using Infrastructure.Common.Repositories;
 using Infrastructure.Extensions;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -11,6 +14,7 @@ using Shared.Configurations;
 using Shared.DTOs;
 using System.Text;
 using System.Threading.RateLimiting;
+using User.API.Application.IntegrationEvent.EventHandler;
 using User.API.Persistence;
 using User.API.Repositories;
 using User.API.Repositories.Interfaces;
@@ -142,6 +146,32 @@ namespace User.API.Extensions
                                 PermitLimit = 4,
                                 Window = TimeSpan.FromSeconds(12)
                             }));
+            });
+        }
+
+        public static void ConfigureMassTransit(this IServiceCollection services)
+        {
+            var settings = services.GetOptions<EventBusSettings>(nameof(EventBusSettings));
+            if (settings == null || string.IsNullOrEmpty(settings.HostAddress) ||
+                string.IsNullOrEmpty(settings.HostAddress)) throw new ArgumentNullException("EventBusSettings is not configured!");
+
+            var mqConnection = new Uri(settings.HostAddress);
+
+            services.TryAddSingleton(KebabCaseEndpointNameFormatter.Instance);
+            services.AddMassTransit(config =>
+            {
+                config.AddConsumersFromNamespaceContaining<ChapterCreatedEventHandler>();
+                config.UsingRabbitMq((ctx, cfg) =>
+                {
+                    cfg.Host(mqConnection);
+                    //cfg.ReceiveEndpoint("created-chapter-queue", c =>
+                    //{
+                    //    c.ConfigureConsumer<ChapterCreatedEventHandler>(ctx);
+                    //});
+                    cfg.ConfigureEndpoints(ctx);
+                });
+                // Publisher
+                //config.AddRequestClient<IChapterCreatedEvent>();
             });
         }
 

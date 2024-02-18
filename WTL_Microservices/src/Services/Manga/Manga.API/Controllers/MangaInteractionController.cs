@@ -9,7 +9,7 @@ namespace Manga.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    [EnableRateLimiting("fixed")]
+    //[EnableRateLimiting("fixed")]
     public class MangaInteractionController : ControllerBase
     {
         private readonly IMangaReactionRepository _mangaReactionRepository;

@@ -20,12 +20,13 @@ try
     builder.Services.ConfigureCors();
     builder.Services.ConfigureSwagger();
     builder.Services.ConfigureRedis();
+    builder.Services.ConfigureMassTransit();
     builder.Services.ConfigureAzureBlob(builder.Configuration);
     builder.Services.ConfigureJWT(builder.Configuration);
     builder.Services.ConfigureErrorCode(builder.Configuration);
     //builder.Services.ConfigureMassTransit();
     builder.Services.AddInfrastructure();
-    builder.Services.ConfigureRateLimtter();
+    //builder.Services.ConfigureRateLimtter();
     var app = builder.Build();
     // Jobs
     app.UseHangfireDashboard("/hangfire", new DashboardOptions

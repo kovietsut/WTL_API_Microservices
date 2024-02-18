@@ -7,6 +7,7 @@ namespace User.API.Repositories.Interfaces
 {
     public interface IUserRepository : IRepositoryBase<UserEntity, long>
     {
+        List<string> GetListEmail(List<long?> listIds);
         IActionResult GetList(int? pageNumber, int? pageSize, string? searchText, int? roleId);
         Task<UserEntity> GetUserByEmail(string email);
         Task<UserEntity> GetUserById(long id);

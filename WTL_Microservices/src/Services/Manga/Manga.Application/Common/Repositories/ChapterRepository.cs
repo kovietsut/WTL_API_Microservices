@@ -1,9 +1,11 @@
 ﻿using Contracts.Domains.Interfaces;
+using EventBus.Messages.IntegrationEvents.Events;
 using Infrastructure.Common.Repositories;
 using Manga.Application.Common.Repositories.Interfaces;
 using Manga.Application.Services.Interfaces;
 using Manga.Infrastructure.Entities;
 using Manga.Infrastructure.Persistence;
+using MassTransit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +15,6 @@ using Shared.Common.Interfaces;
 using Shared.DTOs;
 using Shared.DTOs.Chapter;
 using Shared.SeedWork;
-using System.Collections.Generic;
 using static Shared.DTOs.Chapter.CreateChapterDto;
 using static Shared.DTOs.Chapter.UpdateChapterDto;
 
@@ -27,10 +28,13 @@ namespace Manga.Application.Common.Repositories
         private readonly ISasTokenGenerator _sasTokenGenerator;
         private readonly IBaseAuthService _baseAuthService;
         private readonly IMangaInteractionService _mangaInteractionService;
+        private readonly IMangaReactionRepository _mangaReactionRepository;
+        private readonly IPublishEndpoint _publishEndpoint;
 
         public ChapterRepository(MangaContext dbContext, IUnitOfWork<MangaContext> unitOfWork, IMangaRepository mangaRepository,
             IChapterImageRepository chapterImageRepository, ISasTokenGenerator sasTokenGenerator, IOptions<ErrorCode> errorCode,
-            IBaseAuthService baseAuthService, IMangaInteractionService mangaInteractionService) :
+            IBaseAuthService baseAuthService, IMangaInteractionService mangaInteractionService, IPublishEndpoint publishEndpoint,
+            IMangaReactionRepository mangaReactionRepository) :
             base(dbContext, unitOfWork)
         {
             _errorCodes = errorCode.Value;
@@ -39,6 +43,8 @@ namespace Manga.Application.Common.Repositories
             _sasTokenGenerator = sasTokenGenerator;
             _baseAuthService = baseAuthService;
             _mangaInteractionService = mangaInteractionService;
+            _publishEndpoint = publishEndpoint;
+            _mangaReactionRepository = mangaReactionRepository;
         }
 
         public Task<Chapter> GetChapterById(long chapterId) => FindByCondition(x => x.Id == chapterId).SingleOrDefaultAsync();
@@ -148,6 +154,19 @@ namespace Manga.Application.Common.Repositories
                     Status = model.Status
                 };
                 await CreateAsync(chapter);
+                // Get List User Followers
+                var listMangaInteractions = await _mangaReactionRepository.GetListMangaFollowing((long)chapter.MangaId);
+                var listUsers = listMangaInteractions.Select(x => x.UserId).ToList();
+                // Publish Message || Get List Manga Favorites
+                var eventMessage = new ChapterCreatedEvent()
+                {
+                    Id = chapter.Id,
+                    UserId = chapter.CreatedBy,
+                    ChapterName = chapter.Name,
+                    PublishDate = chapter.PublishDate,
+                    ListUser = listUsers,
+                };
+                await _publishEndpoint.Publish(eventMessage);
                 if (model.Type.Equals("TruyenTranh"))
                 {
                     // Add List Chapter Images

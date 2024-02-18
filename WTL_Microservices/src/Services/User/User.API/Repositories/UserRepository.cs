@@ -30,6 +30,12 @@ namespace User.API.Repositories
             _errorCodes = errorCodes.Value;
         }
 
+        public List<string> GetListEmail(List<long?> listIds)
+        {
+            var emails = FindAll().Where(x => listIds.Contains(x.Id)).Select(x => x.Email).ToList();
+            return emails;
+        }
+
         public IActionResult GetList(int? pageNumber, int? pageSize, string? searchText, int? roleId)
         {
             try

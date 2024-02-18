@@ -16,6 +16,7 @@ try
     builder.Services.ConfigureHealthChecks();
     builder.Services.ConfigureCors();
     builder.Services.ConfigureSwagger();
+    builder.Services.ConfigureMassTransit();
     builder.Services.ConfigureErrorCode(builder.Configuration);
     builder.Services.ConfigureJWT(builder.Configuration);
     builder.Services.AddControllers();

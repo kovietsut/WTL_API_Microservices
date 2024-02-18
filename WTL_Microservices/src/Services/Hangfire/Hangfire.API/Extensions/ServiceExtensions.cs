@@ -9,6 +9,8 @@ using Shared.Common;
 using Shared.DTOs;
 using System.Text;
 using System.Threading.RateLimiting;
+using Hangfire.API.Repositories.Interfaces;
+using Hangfire.API.Repositories;
 
 namespace Hangfire.API.Extensions
 {
@@ -102,6 +104,7 @@ namespace Hangfire.API.Extensions
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>
             services.AddTransient<IScheduledJobService, HangfireService>()
+            .AddScoped<IBackgroundJobRepository, BackgroundJobRepository>()
             ;
     }
 }

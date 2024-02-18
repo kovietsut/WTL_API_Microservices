@@ -24,6 +24,7 @@ using System.Threading.RateLimiting;
 using Manga.Application.Services.Interfaces;
 using Manga.Application.Services;
 using Hangfire;
+using EventBus.Messages.IntegrationEvents.Interfaces;
 
 namespace Manga.API.Extensions
 {
@@ -71,7 +72,7 @@ namespace Manga.API.Extensions
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
             var databaseSettings = services.GetOptions<DatabaseSettings>(nameof(DatabaseSettings));
-            if (databaseSettings == null || string.IsNullOrEmpty(databaseSettings.ConnectionString) 
+            if (databaseSettings == null || string.IsNullOrEmpty(databaseSettings.ConnectionString)
                 || string.IsNullOrEmpty(databaseSettings.ConnectionHangfireString))
                 throw new ArgumentNullException("Connection string is not configured.");
 
@@ -157,16 +158,12 @@ namespace Manga.API.Extensions
             services.TryAddSingleton(KebabCaseEndpointNameFormatter.Instance);
             services.AddMassTransit(config =>
             {
-                config.AddConsumersFromNamespaceContaining<AzureAttachmentEventHandler>();
                 config.UsingRabbitMq((ctx, cfg) =>
                 {
                     cfg.Host(mqConnection);
-                    //cfg.ReceiveEndpoint("azure-blob-queue", c =>
-                    //{
-                    //    c.ConfigureConsumer<AzureAttachmentEventHandler>(ctx);
-                    //});
-                    cfg.ConfigureEndpoints(ctx);
                 });
+                // Publish message, instead of sending it to a specific queue directly.
+                config.AddRequestClient<IChapterCreatedEvent>();
             });
         }
 
