@@ -49,12 +49,12 @@ namespace Manga.Application.Common.Repositories
 
         public Task<Chapter> GetChapterById(long chapterId) => FindByCondition(x => x.Id == chapterId).SingleOrDefaultAsync();
 
-        public async Task<IActionResult> GetList(int? pageNumber, int? pageSize, string? searchText)
+        public async Task<IActionResult> GetList(int? pageNumber, int? pageSize, string? searchText, long? mangaId)
         {
             try
             {
                 pageNumber ??= 1; pageSize ??= 10;
-                var list = FindAll().Where(x =>
+                var list = FindAll().Where(x => (mangaId == null || x.MangaId == mangaId) &&
                     x.IsEnabled == true && (searchText == null || x.Name.Contains(searchText.Trim())))
                 .Select(x => new
                 {
@@ -66,7 +66,7 @@ namespace Manga.Application.Common.Repositories
                     x.Status,
                     ThumbnailImage = _sasTokenGenerator.GenerateCoverImageUriWithSas(x.ThumbnailImage),
                     FavoriteChapters = x.MangaInteractions.Count(fav => fav.MangaId == x.MangaId && fav.Chapter.Id == x.Id && fav.InteractionType == "Favorite")
-                }).Distinct();
+                });
                 var listData = list.Skip(((int)pageNumber - 1) * (int)pageSize)
                     .Take((int)pageSize).OrderByDescending(x => x.ChapterId).ToList();
                 if (list != null)

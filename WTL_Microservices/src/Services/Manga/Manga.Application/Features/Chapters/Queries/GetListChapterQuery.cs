@@ -5,11 +5,12 @@ using Serilog;
 
 namespace Manga.Application.Features.Chapters.Queries
 {
-    public class GetListChapterQuery(int? pageNumber, int? pageSize, string? searchText) : IRequest<IActionResult>
+    public class GetListChapterQuery(int? pageNumber, int? pageSize, string? searchText, long? mangaId) : IRequest<IActionResult>
     {
         public string? SearchText { get; set; } = searchText;
         public int? PageNumber { get; set; } = pageNumber;
         public int? PageSize { get; set; } = pageSize;
+        public long? MangaId { get; set; } = mangaId;
     }
 
     public class GetListChapterQueryHandler : IRequestHandler<GetListChapterQuery, IActionResult>
@@ -27,7 +28,7 @@ namespace Manga.Application.Features.Chapters.Queries
         public async Task<IActionResult> Handle(GetListChapterQuery query, CancellationToken cancellationToken)
         {
             _logger.Information($"BEGIN: {MethodName} - SearchText: {query.SearchText}");
-            var chapters = await _chapterRepository.GetList(query.PageNumber, query.PageSize, query.SearchText);
+            var chapters = await _chapterRepository.GetList(query.PageNumber, query.PageSize, query.SearchText, query.MangaId);
             _logger.Information($"END: {MethodName} - SearchText: {query.SearchText}");
             return chapters;
         }
