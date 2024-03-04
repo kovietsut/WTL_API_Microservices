@@ -147,8 +147,8 @@ namespace AzureBlob.API.Repositories
                 //await _publishEndpoint.Publish(eventMessage);
                 return JsonUtil.Success(new
                 {
-                    FilePath = blobClient.Uri.ToString(),
-                    attachment.FileName,
+                    FilePath = Util.RemoveWhiteSpace(blobClient.Uri.ToString()),
+                    FileName = Util.RemoveWhiteSpace(attachment.FileName),
                     attachment.ContentType
                 });
             }

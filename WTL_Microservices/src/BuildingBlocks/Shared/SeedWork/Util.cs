@@ -58,5 +58,10 @@ namespace Shared.SeedWork
             dateTime = dateTime.AddSeconds(timeStamp).ToLocalTime();
             return dateTime;
         }
+
+        public static string RemoveWhiteSpace(string input)
+        {
+            return string.Concat(input.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
+        }
     }
 }
