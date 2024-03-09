@@ -23,6 +23,11 @@ namespace User.API.Application.IntegrationEvent.EventHandler
             var contextMessage = context.Message;
             var emails = _userRepository.GetListEmail(contextMessage.ListUser);
             _logger.Information("ChapterCreatedEvent consumed successfully. ", emails);
+            var eventMessage = new EmailEvent()
+            {
+                Emails = emails
+            };
+            await _publishEndpoint.Publish(eventMessage);
         }
     }
 }

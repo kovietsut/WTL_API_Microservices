@@ -14,10 +14,12 @@ try
     builder.Services.ConfigureSwagger();
     builder.Services.ConfigureJWT(builder.Configuration);
     builder.Services.ConfigureErrorCode(builder.Configuration);
+    builder.Services.AddConfigurationSettings(builder.Configuration);
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
+    builder.Services.ConfigureMassTransit();
     builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
-    builder.Services.ConfigureRateLimtter();
+    //builder.Services.ConfigureRateLimtter();
     builder.Services.AddSwaggerGen();
 
     var app = builder.Build();

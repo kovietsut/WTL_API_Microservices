@@ -1,5 +1,4 @@
 ﻿using Contracts.Domains.Interfaces;
-using EventBus.Messages.IntegrationEvents.Interfaces;
 using Infrastructure.Common;
 using Infrastructure.Common.Repositories;
 using Infrastructure.Extensions;

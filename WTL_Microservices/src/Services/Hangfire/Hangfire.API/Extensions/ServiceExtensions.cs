@@ -1,16 +1,21 @@
-﻿using Contracts.Domains.Interfaces;
-using Infrastructure.Common.Repositories;
-using Infrastructure.Common;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Shared.Common.Interfaces;
 using Shared.Common;
 using Shared.DTOs;
 using System.Text;
-using System.Threading.RateLimiting;
 using Hangfire.API.Repositories.Interfaces;
 using Hangfire.API.Repositories;
+using MassTransit;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Shared.Configurations;
+using Hangfire.API.Application.IntegrationEvent.EventHandler;
+using Infrastructure.Extensions;
+using Infrastructure.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Contracts.Services;
+using Infrastructure.Exceptions;
 
 namespace Hangfire.API.Extensions
 {
@@ -86,24 +91,64 @@ namespace Hangfire.API.Extensions
             services.Configure<ErrorCode>(configuration.GetSection("ErrorCode"));
         }
 
-        public static void ConfigureRateLimtter(this IServiceCollection services)
+        public static IServiceCollection AddConfigurationSettings(this IServiceCollection services,
+        IConfiguration configuration)
         {
-            services.AddRateLimiter(options =>
+            var hangFireSettings = configuration.GetSection(nameof(HangFireSettings))
+                .Get<HangFireSettings>();
+            services.AddSingleton(hangFireSettings);
+
+            var emailSettings = configuration.GetSection(nameof(SMTPEmailSetting))
+                .Get<SMTPEmailSetting>();
+            services.AddSingleton(emailSettings);
+            return services;
+        }
+
+        public static void ConfigureMassTransit(this IServiceCollection services)
+        {
+            var settings = services.GetOptions<EventBusSettings>(nameof(EventBusSettings));
+            if (settings == null || string.IsNullOrEmpty(settings.HostAddress) ||
+                string.IsNullOrEmpty(settings.HostAddress)) throw new ArgumentNullException("EventBusSettings is not configured!");
+
+            var mqConnection = new Uri(settings.HostAddress);
+
+            services.TryAddSingleton(KebabCaseEndpointNameFormatter.Instance);
+            services.AddMassTransit(config =>
             {
-                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-                options.AddPolicy("fixed", httpContext =>
-                    RateLimitPartition.GetFixedWindowLimiter(
-                            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
-                            factory: _ => new FixedWindowRateLimiterOptions
-                            {
-                                PermitLimit = 4,
-                                Window = TimeSpan.FromSeconds(12)
-                            }));
+                config.AddConsumersFromNamespaceContaining<EmailNotificationEventHandler>();
+                config.UsingRabbitMq((ctx, cfg) =>
+                {
+                    cfg.Host(mqConnection);
+                    //cfg.ReceiveEndpoint("created-email-notifications-queue", c =>
+                    //{
+                    //    c.ConfigureConsumer<EmailNotificationEventHandler>(ctx);
+                    //});
+                    cfg.ConfigureEndpoints(ctx);
+                });
+                // Publisher
+                //config.AddRequestClient<IChapterCreatedEvent>();
             });
         }
 
+        //public static void ConfigureRateLimtter(this IServiceCollection services)
+        //{
+        //    services.AddRateLimiter(options =>
+        //    {
+        //        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+        //        options.AddPolicy("fixed", httpContext =>
+        //            RateLimitPartition.GetFixedWindowLimiter(
+        //                    partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
+        //                    factory: _ => new FixedWindowRateLimiterOptions
+        //                    {
+        //                        PermitLimit = 4,
+        //                        Window = TimeSpan.FromSeconds(12)
+        //                    }));
+        //    });
+        //}
+
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>
             services.AddTransient<IScheduledJobService, HangfireService>()
+            .AddScoped<ISmtpEmailService, SmtpEmailService>()
             .AddScoped<IBackgroundJobRepository, BackgroundJobRepository>()
             ;
     }
