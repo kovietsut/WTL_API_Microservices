@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using FluentValidation;
 using Newtonsoft.Json;
 using Microsoft.IdentityModel.Tokens;
+using ILogger = Serilog.ILogger;
 
 namespace User.API.Repositories
 {
@@ -20,14 +21,16 @@ namespace User.API.Repositories
         private readonly IEncryptionRepository _iEncryptionRepository;
         private readonly IRedisCacheRepository _iRedisCacheRepository;
         private readonly ErrorCode _errorCodes;
+        private readonly ILogger _logger;
 
         public UserRepository(IdentityContext dbContext, IUnitOfWork<IdentityContext> unitOfWork, IEncryptionRepository iEncryptionRepository,
-            IRedisCacheRepository iRedisCacheRepository, IOptions<ErrorCode> errorCodes) 
+            IRedisCacheRepository iRedisCacheRepository, IOptions<ErrorCode> errorCodes, ILogger logger) 
             : base(dbContext, unitOfWork)
         {
             _iEncryptionRepository = iEncryptionRepository;
             _iRedisCacheRepository = iRedisCacheRepository;
             _errorCodes = errorCodes.Value;
+            _logger = logger;
         }
 
         public List<string> GetListEmail(List<long?> listIds)
@@ -72,6 +75,7 @@ namespace User.API.Repositories
 
         public async Task<IActionResult> GetUser(long userId)
         {
+            _logger.Information($"START: GetUserId {userId}");
             var key = $"/api/user/{userId}";
             var cacheUser = await _iRedisCacheRepository.GetCachedResponseAsync(key);
             if (!string.IsNullOrEmpty(cacheUser))
@@ -92,6 +96,7 @@ namespace User.API.Repositories
                     response.CreatedAt,
                     response.ModifiedAt
                 };
+                _logger.Information($"END: GetUser {resultCache.FullName}");
                 return JsonUtil.Success(resultCache);
             }
             var user = await GetUserById(userId);
@@ -106,6 +111,7 @@ namespace User.API.Repositories
             };
             // Store user to cache
             await _iRedisCacheRepository.SetCachedResponseAsync(key, result);
+            _logger.Information($"END: GetUser {result.FullName}");
             return JsonUtil.Success(result);
         }
 

@@ -24,6 +24,12 @@ services:
   portainer:
     image: portainer/portainer-ce
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.7
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.7
+
   #microservices api section
   user.api:
     image: ${DOCKER_REGISTRY-}user-api:${PLATFORM:-linux}-${TAG:-latest}
@@ -61,3 +67,5 @@ volumes:
     name: rabbitmq_data
   portainer_data:
     name: portainer_data
+  elasticsearch_data:
+    name: elasticsearch_data
