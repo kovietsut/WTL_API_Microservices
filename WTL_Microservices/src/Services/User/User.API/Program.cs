@@ -19,6 +19,7 @@ try
     builder.Services.ConfigureMassTransit();
     builder.Services.ConfigureErrorCode(builder.Configuration);
     builder.Services.ConfigureJWT(builder.Configuration);
+    builder.Services.AddElasticSearch(builder.Configuration);
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);

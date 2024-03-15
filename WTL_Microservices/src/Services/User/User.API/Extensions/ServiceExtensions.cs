@@ -1,4 +1,6 @@
-﻿using Contracts.Domains.Interfaces;
+﻿using Common.Logging;
+using Contracts.Domains.Interfaces;
+using ElasticSearch;
 using Infrastructure.Common;
 using Infrastructure.Common.Repositories;
 using Infrastructure.Extensions;
@@ -17,6 +19,7 @@ using User.API.Application.IntegrationEvent.EventHandler;
 using User.API.Persistence;
 using User.API.Repositories;
 using User.API.Repositories.Interfaces;
+using UserEntity = User.API.Entities.User;
 
 namespace User.API.Extensions
 {
@@ -174,6 +177,16 @@ namespace User.API.Extensions
             });
         }
 
+        //private static void AddDefaultMappings(ConnectionSettings settings)
+        //{
+        //    settings.DefaultMappingFor<UserEntity>(m => m.Ignore(p => p.FullName).Ignore(p => p.Email));
+        //}
+
+        public static void AddElasticSearch(this IServiceCollection services, IConfiguration configuration)
+        {
+            ElasticSearchExtension.AddElasticSearch<UserEntity>(services, configuration, null);
+        }
+
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>
         services.AddScoped<IdentityContextSeed>()
             .AddScoped(typeof(IRepositoryBase<,,>), typeof(RepositoryBase<,,>))
@@ -182,6 +195,8 @@ namespace User.API.Extensions
             .AddScoped<IAuthenticationRepository, AuthenticationRepository>()
             .AddScoped<IUserRepository, UserRepository>()
             .AddScoped<ITokenRepository, TokenRepository>()
-            .AddScoped<IRedisCacheRepository, RedisCacheRepository>();
+            .AddScoped<IRedisCacheRepository, RedisCacheRepository>()
+            .AddTransient<LoggingDelegatingHandler>()
+            ;
     }
 }

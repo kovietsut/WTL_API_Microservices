@@ -68,6 +68,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Manga.Application", "src\Se
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Manga.Infrastructure", "src\Services\Manga\Manga.Infrastructure\Manga.Infrastructure.csproj", "{18E3610C-2F8A-45C0-B7DE-B02D6846C835}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElasticSearch", "src\BuildingBlocks\ElasticSearch\ElasticSearch.csproj", "{31E6F0FA-EECC-4666-A391-7647D1A8C255}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -138,6 +140,10 @@ Global
 		{18E3610C-2F8A-45C0-B7DE-B02D6846C835}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18E3610C-2F8A-45C0-B7DE-B02D6846C835}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18E3610C-2F8A-45C0-B7DE-B02D6846C835}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31E6F0FA-EECC-4666-A391-7647D1A8C255}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31E6F0FA-EECC-4666-A391-7647D1A8C255}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31E6F0FA-EECC-4666-A391-7647D1A8C255}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31E6F0FA-EECC-4666-A391-7647D1A8C255}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -171,6 +177,7 @@ Global
 		{F388C202-CD00-4DFC-B6CE-DDD01862FC38} = {A476E0E6-1401-4546-96B5-B83F9F760EE8}
 		{0B63B880-50AF-466E-915B-7C0635D0558E} = {72C991E5-9412-4376-AED5-11443B432F56}
 		{18E3610C-2F8A-45C0-B7DE-B02D6846C835} = {72C991E5-9412-4376-AED5-11443B432F56}
+		{31E6F0FA-EECC-4666-A391-7647D1A8C255} = {6D22CF0E-B4AB-4947-81D9-DE09F004CD56}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {28F19872-26EC-4614-B42D-6DC7CCB1D7A1}

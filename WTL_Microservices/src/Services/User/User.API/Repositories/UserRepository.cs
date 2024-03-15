@@ -13,6 +13,8 @@ using FluentValidation;
 using Newtonsoft.Json;
 using Microsoft.IdentityModel.Tokens;
 using ILogger = Serilog.ILogger;
+using Nest;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace User.API.Repositories
 {
@@ -22,15 +24,17 @@ namespace User.API.Repositories
         private readonly IRedisCacheRepository _iRedisCacheRepository;
         private readonly ErrorCode _errorCodes;
         private readonly ILogger _logger;
+        private readonly IElasticClient _elasticClient;
 
         public UserRepository(IdentityContext dbContext, IUnitOfWork<IdentityContext> unitOfWork, IEncryptionRepository iEncryptionRepository,
-            IRedisCacheRepository iRedisCacheRepository, IOptions<ErrorCode> errorCodes, ILogger logger) 
+            IRedisCacheRepository iRedisCacheRepository, IOptions<ErrorCode> errorCodes, ILogger logger, IElasticClient elasticClient) 
             : base(dbContext, unitOfWork)
         {
             _iEncryptionRepository = iEncryptionRepository;
             _iRedisCacheRepository = iRedisCacheRepository;
             _errorCodes = errorCodes.Value;
             _logger = logger;
+            _elasticClient = elasticClient;
         }
 
         public List<string> GetListEmail(List<long?> listIds)
@@ -44,13 +48,69 @@ namespace User.API.Repositories
             try
             {
                 pageNumber ??= 1; pageSize ??= 10;
+
+                //var list = _elasticClient.Search<UserEntity>(s => s
+                //    .Index("users")
+                //    .From((pageNumber - 1) * pageSize) // Calculate the starting index
+                //    .Size(pageSize) // Number of documents to retrieve
+                //    .Query(q => q
+                //        .Bool(b => b
+                //            .Must(
+                //                mu => mu.Term("IsEnabled", true),
+                //                mu => roleId == null ? null : mu.Term("RoleId", roleId),
+                //                mu => searchText == null ? null : mu.MultiMatch(mm => mm
+                //                    .Fields(fs => fs
+                //                        .Field("FullName")
+                //                        .Field("PhoneNumber")
+                //                        .Field("Address")
+                //                        .Field("Gender")
+                //                        .Field("Email")
+                //                    )
+                //                    .Query(searchText.Trim())
+                //                )
+                //            )
+                //        )
+                //    )
+                //    .Source(src => src
+                //        .Includes(i => i
+                //            .Fields(
+                //                "Id",
+                //                "IsEnabled",
+                //                "FullName",
+                //                "Email",
+                //                "PhoneNumber",
+                //                "AvatarPath",
+                //                "Gender",
+                //                "Address",
+                //                "RoleId",
+                //                "Role.Name"
+                //            )
+                //        )
+                //    )
+                //);
+
+                //var response = _elasticClient.SearchAsync<UserEntity>(s => s
+                //    .Index("users")
+                //    .From(0)
+                //    .Size(10)
+                //);
+                //return JsonUtil.Success(response.Result.Documents);
+
                 var list = FindAll().Include(x => x.Role).Where(x => x.IsEnabled == true && (x.RoleId == roleId || roleId == null) &&
                 (searchText == null || x.FullName.Contains(searchText.Trim()) || x.PhoneNumber.Contains(searchText.Trim())
                     || x.Address.Contains(searchText.Trim()) || x.Gender.Contains(searchText.Trim()) || x.Email.Contains(searchText.Trim())))
                     .Select(x => new
                     {
-                        UserId = x.Id, x.IsEnabled, x.FullName, x.Email, x.PhoneNumber, x.AvatarPath, x.Gender, x.Address, 
-                        x.RoleId, RoleName = x.Role.Name
+                        UserId = x.Id,
+                        x.IsEnabled,
+                        x.FullName,
+                        x.Email,
+                        x.PhoneNumber,
+                        x.AvatarPath,
+                        x.Gender,
+                        x.Address,
+                        x.RoleId,
+                        RoleName = x.Role.Name
                     });
                 var listData = list.Skip(((int)pageNumber - 1) * (int)pageSize)
                     .Take((int)pageSize).OrderByDescending(x => x.UserId).ToList();
@@ -149,6 +209,8 @@ namespace User.API.Repositories
                     Gender = model.Gender != null ? model.Gender.Trim() : model.Gender
                 };
                 user.PasswordHash = _iEncryptionRepository.EncryptPassword(model.Password, user.SecurityStamp);
+                // Elastic Here
+                var a = await _elasticClient.IndexDocumentAsync(user);
                 await CreateAsync(user);
                 return JsonUtil.Success(user);
             }
@@ -199,6 +261,8 @@ namespace User.API.Repositories
                 // Update cached
                 await _iRedisCacheRepository.RemoveCached(key);
                 await _iRedisCacheRepository.SetCachedResponseAsync(key, currentUser);
+                // Elastic Search
+                await _elasticClient.UpdateAsync<UserEntity>(currentUser.Id, u => u.Index("users").Doc(currentUser));
                 return JsonUtil.Success(currentUser.Id);
             }
             catch(Exception ex)
@@ -214,6 +278,8 @@ namespace User.API.Repositories
             {
                 user.IsEnabled = false;
                 await UpdateAsync(user);
+                // Elastic search
+                await _elasticClient.DeleteAsync<UserEntity>(user);
             }
             return JsonUtil.Success(id);
         }
