@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Shared.Configurations;
 using Shared.DTOs;
+using Shared.ElasticSearchModel;
 using System.Text;
 using System.Threading.RateLimiting;
 using User.API.Application.IntegrationEvent.EventHandler;
@@ -184,7 +185,7 @@ namespace User.API.Extensions
 
         public static void AddElasticSearch(this IServiceCollection services, IConfiguration configuration)
         {
-            ElasticSearchExtension.AddElasticSearch<UserEntity>(services, configuration, null);
+            ElasticSearchExtension.AddElasticSearch<UserSearchResult>(services, configuration, null);
         }
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Shared.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,6 +63,23 @@ namespace Shared.SeedWork
         public static string RemoveWhiteSpace(string input)
         {
             return string.Concat(input.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
+        }
+
+        public static string GetRoleName(long roleId)
+        {
+            switch (roleId)
+            {
+                case 1:
+                    return "Admin";
+                case 2:
+                    return "Author";
+                case 3:
+                    return "User";
+                case 4:
+                    return "Translator";
+                default:
+                    throw new ArgumentException("Invalid role");
+            }
         }
     }
 }

@@ -15,6 +15,8 @@ namespace Shared.Enums
     public enum RoleEnum
     {
         ADMIN = 1,
-        USER = 2,
+        AUTHOR = 2,
+        USER = 3,
+        TRANSLATOR = 4
     }
 }
