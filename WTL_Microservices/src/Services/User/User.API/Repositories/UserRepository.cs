@@ -289,7 +289,20 @@ namespace User.API.Repositories
                 user.IsEnabled = false;
                 await UpdateAsync(user);
                 // Elastic search
-                await _elasticClient.DeleteAsync<UserEntity>(user);
+                var indexedUser = new UserSearchResult()
+                {
+                    Id = user.Id,
+                    IsEnabled = user.IsEnabled,
+                    FullName = user.FullName,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    AvatarPath = user.AvatarPath,
+                    Gender =  user.Gender,
+                    Address = user.Address,
+                    RoleId = user.RoleId,
+                    RoleName = Util.GetRoleName(user.RoleId)
+                };
+                await _elasticClient.DeleteAsync<UserSearchResult>(indexedUser);
             }
             return JsonUtil.Success(id);
         }
@@ -321,7 +334,8 @@ namespace User.API.Repositories
                 {
                     await UpdateListAsync(list);
                     // Delete documents from Elasticsearch
-                    var response = await _elasticClient.DeleteManyAsync(users);
+                    var indexedUsers = await _elasticClient.GetManyAsync<UserSearchResult>(listIds);
+                    var response = await _elasticClient.DeleteManyAsync(indexedUsers);
                 }
                 await EndTransactionAsync();
                 return JsonUtil.Success(listRemoved);
