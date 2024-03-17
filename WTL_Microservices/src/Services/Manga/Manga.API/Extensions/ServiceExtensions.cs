@@ -196,7 +196,6 @@ namespace Manga.API.Extensions
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>
         services
-            .AddAutoMapper(Assembly.GetExecutingAssembly())
             .AddMediatR(cfg =>
             {
                 cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
