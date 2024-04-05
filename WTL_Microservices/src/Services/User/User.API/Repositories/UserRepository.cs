@@ -13,8 +13,8 @@ using FluentValidation;
 using Newtonsoft.Json;
 using Microsoft.IdentityModel.Tokens;
 using ILogger = Serilog.ILogger;
-using Nest;
-using Shared.ElasticSearchModel;
+using User.API.HttpRepository.Interfaces;
+using Microsoft.Extensions.Azure;
 
 namespace User.API.Repositories
 {
@@ -24,17 +24,17 @@ namespace User.API.Repositories
         private readonly IRedisCacheRepository _iRedisCacheRepository;
         private readonly ErrorCode _errorCodes;
         private readonly ILogger _logger;
-        private readonly IElasticClient _elasticClient;
+        private readonly IElasticSearchUserHttpRepository _elasticSearchUserHttpRepository;
 
         public UserRepository(IdentityContext dbContext, IUnitOfWork<IdentityContext> unitOfWork, IEncryptionRepository iEncryptionRepository,
-            IRedisCacheRepository iRedisCacheRepository, IOptions<ErrorCode> errorCodes, ILogger logger, IElasticClient elasticClient) 
+            IRedisCacheRepository iRedisCacheRepository, IOptions<ErrorCode> errorCodes, ILogger logger, IElasticSearchUserHttpRepository elasticSearchUserHttpRepository) 
             : base(dbContext, unitOfWork)
         {
             _iEncryptionRepository = iEncryptionRepository;
             _iRedisCacheRepository = iRedisCacheRepository;
             _errorCodes = errorCodes.Value;
             _logger = logger;
-            _elasticClient = elasticClient;
+            _elasticSearchUserHttpRepository = elasticSearchUserHttpRepository;
         }
 
         public List<string> GetListEmail(List<long?> listIds)
@@ -43,67 +43,73 @@ namespace User.API.Repositories
             return emails;
         }
 
-        public IActionResult GetList(int? pageNumber, int? pageSize, string? searchText, int? roleId)
+        public async Task<IActionResult> GetList(int? pageNumber, int? pageSize, string? searchText, int? roleId)
         {
             try
             {
                 pageNumber ??= 1; pageSize ??= 10;
-                var searchResponse = _elasticClient.Search<UserSearchResult>(s => s
-                    .Index("users-search")
-                    .Query(q => q
-                        .Bool(b => b
-                            .Must(
-                                mu => mu.Term(t => t.Field(f => f.IsEnabled).Value(true)),
-                                mu => roleId == null ? null : mu.Term(t => t.Field(f => f.RoleId).Value(roleId)),
-                                mu => searchText == null ? null : mu.MultiMatch(m => m
-                                    .Fields(f => f
-                                        .Field(ff => ff.FullName)
-                                        .Field(ff => ff.PhoneNumber)
-                                        .Field(ff => ff.Address)
-                                        .Field(ff => ff.Gender)
-                                        .Field(ff => ff.Email)
-                                    )
-                                    .Query(searchText)
-                                )
-                            )
-                        )
-                    )
-                    .From(((pageNumber ?? 1) - 1) * (pageSize ?? 10))
-                    .Size(pageSize)
-                    .Sort(srt => srt.Descending(x => x.Id))
-                );
-                var list = searchResponse.Documents;
-                if (list != null)
-                {
-                    var totalRecords = list.Count();
-                    return JsonUtil.Success(list, dataCount: totalRecords);
-                }
-                return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Empty List Data");
-
-                //var list = FindAll().Include(x => x.Role).Where(x => x.IsEnabled == true && (x.RoleId == roleId || roleId == null) &&
-                //(searchText == null || x.FullName.Contains(searchText.Trim()) || x.PhoneNumber.Contains(searchText.Trim())
-                //    || x.Address.Contains(searchText.Trim()) || x.Gender.Contains(searchText.Trim()) || x.Email.Contains(searchText.Trim())))
-                //    .Select(x => new
-                //    {
-                //        UserId = x.Id,
-                //        x.IsEnabled,
-                //        x.FullName,
-                //        x.Email,
-                //        x.PhoneNumber,
-                //        x.AvatarPath,
-                //        x.Gender,
-                //        x.Address,
-                //        x.RoleId,
-                //        RoleName = x.Role.Name
-                //    });
-                //var listData = list.Skip(((int)pageNumber - 1) * (int)pageSize)
-                //    .Take((int)pageSize).OrderByDescending(x => x.UserId).ToList();
+                //var searchResponse = _elasticClient.Search<UserSearchResult>(s => s
+                //    .Index("users-search")
+                //    .Query(q => q
+                //        .Bool(b => b
+                //            .Must(
+                //                mu => mu.Term(t => t.Field(f => f.IsEnabled).Value(true)),
+                //                mu => roleId == null ? null : mu.Term(t => t.Field(f => f.RoleId).Value(roleId)),
+                //                mu => searchText == null ? null : mu.MultiMatch(m => m
+                //                    .Fields(f => f
+                //                        .Field(ff => ff.FullName)
+                //                        .Field(ff => ff.PhoneNumber)
+                //                        .Field(ff => ff.Address)
+                //                        .Field(ff => ff.Gender)
+                //                        .Field(ff => ff.EmailAddress)
+                //                    )
+                //                    .Query(searchText)
+                //                )
+                //            )
+                //        )
+                //    )
+                //    .From(((pageNumber ?? 1) - 1) * (pageSize ?? 10))
+                //    .Size(pageSize)
+                //    .Sort(srt => srt.Descending(x => x.Id))
+                //);
+                //var list = searchResponse.Documents;
                 //if (list != null)
                 //{
                 //    var totalRecords = list.Count();
-                //    return JsonUtil.Success(listData, dataCount: totalRecords);
+                //    return JsonUtil.Success(list, dataCount: totalRecords);
                 //}
                 //return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Empty List Data");
+
+                var elasticSearch = await _elasticSearchUserHttpRepository.GetElasticSearchUser(pageNumber, pageSize);
+                if (elasticSearch != null)
+                {
+                    return JsonUtil.Success(elasticSearch);
+                }
+
+                var list = FindAll().Include(x => x.Role).Where(x => x.IsEnabled == true && (x.RoleId == roleId || roleId == null) &&
+                (searchText == null || x.FullName.Contains(searchText.Trim()) || x.PhoneNumber.Contains(searchText.Trim())
+                    || x.Address.Contains(searchText.Trim()) || x.Gender.Contains(searchText.Trim()) || x.Email.Contains(searchText.Trim())))
+                    .Select(x => new
+                    {
+                        UserId = x.Id,
+                        x.IsEnabled,
+                        x.FullName,
+                        x.Email,
+                        x.PhoneNumber,
+                        x.AvatarPath,
+                        x.Gender,
+                        x.Address,
+                        x.RoleId,
+                        RoleName = x.Role.Name
+                    });
+                var listData = list.Skip(((int)pageNumber - 1) * (int)pageSize)
+                    .Take((int)pageSize).OrderByDescending(x => x.UserId).ToList();
+                if (list != null)
+                {
+                    var totalRecords = list.Count();
+                    return JsonUtil.Success(listData, dataCount: totalRecords); 
+                }
+                return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Empty List Data");
             }
             catch (Exception ex)
             {
@@ -195,20 +201,6 @@ namespace User.API.Repositories
                 user.PasswordHash = _iEncryptionRepository.EncryptPassword(model.Password, user.SecurityStamp);
                 await CreateAsync(user);
                 // Elastic Here
-                var indexedUser = new UserSearchResult()
-                {
-                    Id = user.Id,
-                    IsEnabled = user.IsEnabled,
-                    FullName = user.FullName,
-                    Email = user.Email,
-                    PhoneNumber = user.PhoneNumber,
-                    AvatarPath = user.AvatarPath,
-                    Gender = user.Gender,
-                    Address = user.Address,
-                    RoleId = user.RoleId,
-                    RoleName = Util.GetRoleName(user.RoleId),
-                };
-                await _elasticClient.IndexDocumentAsync(indexedUser);
                 return JsonUtil.Success(user);
             }
             catch (Exception ex) {
@@ -259,20 +251,6 @@ namespace User.API.Repositories
                 await _iRedisCacheRepository.RemoveCached(key);
                 await _iRedisCacheRepository.SetCachedResponseAsync(key, currentUser);
                 // Elastic Search
-                var indexedUser = new UserSearchResult()
-                {
-                    Id = currentUser.Id,
-                    IsEnabled = currentUser.IsEnabled,
-                    FullName = currentUser.FullName,
-                    Email = currentUser.Email,
-                    PhoneNumber = currentUser.PhoneNumber,
-                    AvatarPath = currentUser.AvatarPath,
-                    Gender = currentUser.Gender,
-                    Address = currentUser.Address,
-                    RoleId = currentUser.RoleId,
-                    RoleName = Util.GetRoleName(currentUser.RoleId)
-                };
-                await _elasticClient.UpdateAsync<UserSearchResult>(currentUser.Id, u => u.Index("users-search").Doc(indexedUser));
                 return JsonUtil.Success(currentUser.Id);
             }
             catch(Exception ex)
@@ -289,20 +267,6 @@ namespace User.API.Repositories
                 user.IsEnabled = false;
                 await UpdateAsync(user);
                 // Elastic search
-                var indexedUser = new UserSearchResult()
-                {
-                    Id = user.Id,
-                    IsEnabled = user.IsEnabled,
-                    FullName = user.FullName,
-                    Email = user.Email,
-                    PhoneNumber = user.PhoneNumber,
-                    AvatarPath = user.AvatarPath,
-                    Gender =  user.Gender,
-                    Address = user.Address,
-                    RoleId = user.RoleId,
-                    RoleName = Util.GetRoleName(user.RoleId)
-                };
-                await _elasticClient.DeleteAsync<UserSearchResult>(indexedUser);
             }
             return JsonUtil.Success(id);
         }
@@ -334,8 +298,6 @@ namespace User.API.Repositories
                 {
                     await UpdateListAsync(list);
                     // Delete documents from Elasticsearch
-                    var indexedUsers = await _elasticClient.GetManyAsync<UserSearchResult>(listIds);
-                    var response = await _elasticClient.DeleteManyAsync(indexedUsers);
                 }
                 await EndTransactionAsync();
                 return JsonUtil.Success(listRemoved);

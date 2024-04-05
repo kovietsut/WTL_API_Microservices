@@ -130,3 +130,11 @@ services:
     ports:
       - "6003:80"
     restart: always
+  elasticsearch.api:
+    container_name: elasticsearch.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - "6005:80"
+    restart: always

@@ -1,6 +1,5 @@
 ﻿using Common.Logging;
 using Contracts.Domains.Interfaces;
-using ElasticSearch;
 using Infrastructure.Common;
 using Infrastructure.Common.Repositories;
 using Infrastructure.Extensions;
@@ -13,14 +12,14 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Shared.Configurations;
 using Shared.DTOs;
-using Shared.ElasticSearchModel;
 using System.Text;
 using System.Threading.RateLimiting;
 using User.API.Application.IntegrationEvent.EventHandler;
+using User.API.HttpRepository;
+using User.API.HttpRepository.Interfaces;
 using User.API.Persistence;
 using User.API.Repositories;
 using User.API.Repositories.Interfaces;
-using UserEntity = User.API.Entities.User;
 
 namespace User.API.Extensions
 {
@@ -178,14 +177,38 @@ namespace User.API.Extensions
             });
         }
 
-        //private static void AddDefaultMappings(ConnectionSettings settings)
-        //{
-        //    settings.DefaultMappingFor<UserEntity>(m => m.Ignore(p => p.FullName).Ignore(p => p.Email));
-        //}
-
-        public static void AddElasticSearch(this IServiceCollection services, IConfiguration configuration)
+        public static void ConfigureHttpClients(this IServiceCollection services)
         {
-            ElasticSearchExtension.AddElasticSearch<UserSearchResult>(services, configuration, null);
+            ConfigureElasticSearchUserHttpClient(services);
+            ConfigureAuthenticateHttpClient(services);
+        }
+
+        private static void ConfigureElasticSearchUserHttpClient(this IServiceCollection services)
+        {   
+            var urls = services.GetOptions<ServiceUrls>(nameof(ServiceUrls));
+            if (urls == null || string.IsNullOrEmpty(urls.ElasticSearch))
+                throw new ArgumentNullException("ServiceUrls ElasticSearch is not configured");
+
+            services.AddHttpClient<IElasticSearchUserHttpRepository, ElasticSearchUserHttpRepository>("ElasticSearchAPI", (sp, cl) =>
+            {
+                cl.BaseAddress = new Uri($"{urls.ElasticSearch}/api/");
+            }).AddHttpMessageHandler<LoggingDelegatingHandler>();
+            services.AddScoped(sp => sp.GetService<IHttpClientFactory>()
+                .CreateClient("ElasticSearchAPI"));
+        }
+
+        private static void ConfigureAuthenticateHttpClient(this IServiceCollection services)
+        {
+            var urls = services.GetOptions<ServiceUrls>(nameof(ServiceUrls));
+            if (urls == null || string.IsNullOrEmpty(urls.Authenticate))
+                throw new ArgumentNullException("ServiceUrls Authenticate is not configured");
+
+            services.AddHttpClient<IAuthenticateHttpRepository, AuthenticateHttpRepository>("AuthenticateAPI", (sp, cl) =>
+            {
+                cl.BaseAddress = new Uri($"{urls.Authenticate}/api/");
+            }).AddHttpMessageHandler<LoggingDelegatingHandler>();
+            services.AddScoped(sp => sp.GetService<IHttpClientFactory>()
+                .CreateClient("ElasticSearchAPI"));
         }
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>

@@ -49,6 +49,12 @@ services:
       context: .
       dockerfile: Services/AzureBlob/AzureBlob.API/Dockerfile
 
+  elasticsearch.api:
+    image: ${DOCKER_REGISTRY-}elasticsearch-api:${PLATFORM:-linux}-${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Services/ElasticSearch/ElasticSearch.API/Dockerfile
+
 #network section
 networks:
   default:

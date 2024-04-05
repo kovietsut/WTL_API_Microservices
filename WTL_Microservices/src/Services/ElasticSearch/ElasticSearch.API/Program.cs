@@ -1,6 +1,5 @@
+using ElasticSearch.API.Extensions;
 using Serilog;
-using User.API.Extensions;
-using User.API.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,32 +10,21 @@ try
     builder.Host.AddAppConfigurations();
     // Add services to the container.
     builder.Services.AddApplicationServices();
-    builder.Services.AddInfrastructure();
-    builder.Services.ConfigureRedis();
-    builder.Services.ConfigureHealthChecks();
     builder.Services.ConfigureCors();
     builder.Services.ConfigureSwagger();
-    builder.Services.ConfigureMassTransit();
-    builder.Services.ConfigureHttpClients();
     builder.Services.ConfigureErrorCode(builder.Configuration);
     builder.Services.ConfigureJWT(builder.Configuration);
+    builder.Services.AddElasticSearch(builder.Configuration);
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
-    builder.Services.ConfigureRateLimtter();
     builder.Services.AddSwaggerGen();
 
     var app = builder.Build();
     app.UseInfrastructure();
-    using (var scope = app.Services.CreateScope())
-    {
-        var contextSeed = scope.ServiceProvider.GetRequiredService<IdentityContextSeed>();
-        await contextSeed.InitialiseAsync();
-        await contextSeed.SeedAsync();
-    }
     app.Run();
 }
-catch(Exception ex)
+catch (Exception ex)
 {
     string type = ex.GetType().Name;
     if (type.Equals("StopTheHostException", StringComparison.Ordinal)) throw;

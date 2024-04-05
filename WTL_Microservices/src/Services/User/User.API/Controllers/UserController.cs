@@ -26,9 +26,9 @@ namespace User.API.Controllers
         }
 
         [HttpGet("get-list")]
-        public IActionResult GetList(int? pageNumber, int? pageSize, string? searchText, int? roleId)
+        public async Task<IActionResult> GetList(int? pageNumber, int? pageSize, string? searchText, int? roleId)
         {
-            return _iUserRepository.GetList(pageNumber, pageSize, searchText, roleId);
+            return await _iUserRepository.GetList(pageNumber, pageSize, searchText, roleId);
         }
 
         [HttpPost]
