@@ -14,7 +14,6 @@ using Newtonsoft.Json;
 using Microsoft.IdentityModel.Tokens;
 using ILogger = Serilog.ILogger;
 using User.API.HttpRepository.Interfaces;
-using Microsoft.Extensions.Azure;
 
 namespace User.API.Repositories
 {
@@ -81,7 +80,7 @@ namespace User.API.Repositories
                 //return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Empty List Data");
 
                 var elasticSearch = await _elasticSearchUserHttpRepository.GetElasticSearchUser(pageNumber, pageSize);
-                if (elasticSearch != null)
+                if (elasticSearch != null && elasticSearch.Count > 0)
                 {
                     return JsonUtil.Success(elasticSearch);
                 }

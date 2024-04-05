@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Nest;
 using Shared.DTOs;
 using Shared.SeedWork;
+using ILogger = Serilog.ILogger;
 
 namespace ElasticSearch.API.Repositories
 {
@@ -13,14 +14,16 @@ namespace ElasticSearch.API.Repositories
     {
         private readonly IElasticClient _elasticClient;
         private readonly ErrorCode _errorCodes;
+        private readonly ILogger _logger;
 
-        public UserElasticSearchRepository(IElasticClient elasticClient, IOptions<ErrorCode> errorCodes)
+        public UserElasticSearchRepository(IElasticClient elasticClient, IOptions<ErrorCode> errorCodes, ILogger logger)
         {
             _elasticClient = elasticClient;
             _errorCodes = errorCodes.Value;
+            _logger = logger;
         }
 
-        public IActionResult GetList(int? pageNumber, int? pageSize, string? searchText, int? roleId)
+        public List<UserSearchResult> GetList(int? pageNumber, int? pageSize, string? searchText, int? roleId)
         {
             try
             {
@@ -61,17 +64,17 @@ namespace ElasticSearch.API.Repositories
                     .Size(pageSize)
                     .Sort(srt => srt.Descending(x => x.Id))
                 );
-                var list = searchResponse.Documents;
+                var list = searchResponse.Documents.ToList();
                 if (list != null)
                 {
-                    var totalRecords = list.Count();
-                    return JsonUtil.Success(list, dataCount: totalRecords);
+                    return list;
                 }
-                return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Empty List Data");
+                return null;
             }
             catch (Exception ex)
             {
-                return JsonUtil.Error(StatusCodes.Status401Unauthorized, _errorCodes.Status401.Unauthorized, ex.Message);
+                _logger.Error($"Something went wrong: {ex.Message}");
+                return null;
             }
         }
 

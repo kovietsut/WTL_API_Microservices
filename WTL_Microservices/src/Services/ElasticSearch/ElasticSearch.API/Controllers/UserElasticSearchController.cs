@@ -2,6 +2,7 @@
 using ElasticSearch.API.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.SeedWork;
 
 namespace ElasticSearch.API.Controllers
 {
@@ -20,7 +21,8 @@ namespace ElasticSearch.API.Controllers
         [HttpGet("get-list")]
         public IActionResult GetList(int? pageNumber, int? pageSize, string? searchText, int? roleId)
         {
-            return _iUserElasticSearchRepository.GetList(pageNumber, pageSize, searchText, roleId);
+            var result = _iUserElasticSearchRepository.GetList(pageNumber, pageSize, searchText, roleId);
+            return Ok(result);
         }
 
         [HttpPost]

@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using User.API.ElasticSearch;
 
 namespace User.API.HttpRepository.Interfaces
 {
     public interface IElasticSearchUserHttpRepository
     {
-        Task<IActionResult> GetElasticSearchUser(int? pageNumber, int? pageSize);
+        Task<List<UserSearchResult>> GetElasticSearchUser(int? pageNumber, int? pageSize);
     }
 }
