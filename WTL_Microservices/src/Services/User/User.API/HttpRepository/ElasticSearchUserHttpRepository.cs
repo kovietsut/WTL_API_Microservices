@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using User.API.ElasticSearch;
 using User.API.HttpRepository.Interfaces;
 using ILogger = Serilog.ILogger;
