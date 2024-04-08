@@ -13,7 +13,6 @@ using Microsoft.OpenApi.Models;
 using Shared.Configurations;
 using Shared.DTOs;
 using System.Text;
-using System.Threading.RateLimiting;
 using User.API.Application.IntegrationEvent.EventHandler;
 using User.API.HttpRepository;
 using User.API.HttpRepository.Interfaces;
@@ -132,22 +131,6 @@ namespace User.API.Extensions
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = settings.ConnectionString;
-            });
-        }
-
-        public static void ConfigureRateLimtter(this IServiceCollection services)
-        {
-            services.AddRateLimiter(options =>
-            {
-                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-                options.AddPolicy("fixed", httpContext =>
-                    RateLimitPartition.GetFixedWindowLimiter(
-                            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
-                            factory: _ => new FixedWindowRateLimiterOptions
-                            {
-                                PermitLimit = 4,
-                                Window = TimeSpan.FromSeconds(12)
-                            }));
             });
         }
 

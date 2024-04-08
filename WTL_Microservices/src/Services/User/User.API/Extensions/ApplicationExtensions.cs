@@ -19,7 +19,6 @@ namespace User.API.Extensions
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors("AllowAll");
-            app.UseRateLimiter();
             // app.UseHttpsRedirection(); //for production only
             app.UseEndpoints(endpoints =>
             {

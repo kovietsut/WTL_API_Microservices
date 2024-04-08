@@ -23,7 +23,6 @@ try
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
-    builder.Services.ConfigureRateLimtter();
     builder.Services.AddSwaggerGen();
 
     var app = builder.Build();
