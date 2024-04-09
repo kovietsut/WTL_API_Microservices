@@ -5,7 +5,7 @@ using Shared.DTOs.RedisCache;
 using Shared.SeedWork;
 using User.API.Repositories.Interfaces;
 
-namespace User.API.Attributes
+namespace User.API.Behaviours
 {
     public class CacheAttribute : Attribute, IAsyncActionFilter
     {

@@ -4,6 +4,7 @@
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
+      "healthchecks-ui#/healthchecks": null,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
