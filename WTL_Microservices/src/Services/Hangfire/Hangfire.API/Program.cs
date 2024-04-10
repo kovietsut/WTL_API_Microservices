@@ -15,6 +15,7 @@ try
     builder.Services.ConfigureJWT(builder.Configuration);
     builder.Services.ConfigureErrorCode(builder.Configuration);
     builder.Services.AddConfigurationSettings(builder.Configuration);
+    builder.Services.AddHealthChecks();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.ConfigureMassTransit();
