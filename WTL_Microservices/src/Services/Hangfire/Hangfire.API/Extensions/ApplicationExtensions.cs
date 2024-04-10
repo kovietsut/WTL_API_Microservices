@@ -1,4 +1,6 @@
-﻿using Infrastructure.Middlewares;
+﻿using HealthChecks.UI.Client;
+using Infrastructure.Middlewares;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace Hangfire.API.Extensions
 {
@@ -21,7 +23,12 @@ namespace Hangfire.API.Extensions
             // app.UseHttpsRedirection(); //for production only
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapHealthChecks("/hc", new HealthCheckOptions()
+                {
+                    Predicate = _ => true,
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
+                endpoints.MapDefaultControllerRoute();
             });
         }
     }

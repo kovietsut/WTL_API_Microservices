@@ -1,4 +1,5 @@
-﻿using Infrastructure.Middlewares;
+﻿using HealthChecks.UI.Client;
+using Infrastructure.Middlewares;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace AzureBlob.API.Extensions
@@ -15,14 +16,20 @@ namespace AzureBlob.API.Extensions
             });
             app.UseMiddleware<ErrorWrappingMiddleware>();
             app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
+            //app.UseAuthentication();
+            //app.UseAuthorization();
             app.UseCors("AllowAll");
             app.UseRateLimiter();
             // app.UseHttpsRedirection(); //for production only
+            
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapHealthChecks("/hc", new HealthCheckOptions()
+                {
+                    Predicate = _ => true,
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
+                endpoints.MapDefaultControllerRoute();
             });
         }
     }

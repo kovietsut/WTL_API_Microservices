@@ -16,12 +16,17 @@ namespace ElasticSearch.API.Extensions
             });
             app.UseMiddleware<ErrorWrappingMiddleware>();
             app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
+            //app.UseAuthentication();
+            //app.UseAuthorization();
             app.UseCors("AllowAll");
             //app.UseHttpsRedirection(); //for production only
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHealthChecks("/hc", new HealthCheckOptions()
+                {
+                    Predicate = _ => true,
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
                 endpoints.MapDefaultControllerRoute();
             });
         }

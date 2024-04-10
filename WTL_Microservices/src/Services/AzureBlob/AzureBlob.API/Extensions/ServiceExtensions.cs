@@ -14,6 +14,7 @@ using Shared.Common.Interfaces;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Infrastructure.Extensions;
 using System.Threading.RateLimiting;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace AzureBlob.API.Extensions
 {
@@ -93,6 +94,15 @@ namespace AzureBlob.API.Extensions
         {
             services.Configure<AzureBlobSettings>(configuration.GetSection("AzureClient"));
         }
+
+        //public static void ConfigureHealthChecks(this IServiceCollection services)
+        //{
+        //    var databaseSettings = services.GetOptions<DatabaseSettings>(nameof(DatabaseSettings));
+        //    services.AddHealthChecks()
+        //        .AddAzureBlobStorage("the-connection-string",
+        //            name: "SqlServer Health",
+        //            failureStatus: HealthStatus.Degraded);
+        //}
 
         public static void ConfigureMassTransit(this IServiceCollection services)
         {
