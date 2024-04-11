@@ -11,10 +11,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Shared.Common;
 using Shared.Common.Interfaces;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Infrastructure.Extensions;
 using System.Threading.RateLimiting;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace AzureBlob.API.Extensions
 {

@@ -20,7 +20,7 @@ namespace User.API.HttpRepository
         {
             try
             {
-                _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5ndXllbnRpZW5waGF0OXhAZ21haWwuY29tIiwic3ViIjoiMSIsImp0aSI6IjZkMTRhNWRiLTI4M2YtNGI1ZC1iMjI2LThmNWE5MGFiZmZlOCIsIklkIjoiMSIsIkVtYWlsIjoibmd1eWVudGllbnBoYXQ5eEBnbWFpbC5jb20iLCJSb2xlIjoiMSIsIm5iZiI6MTcxMjMwMjY1MywiZXhwIjoxNzEyOTA3NDUzLCJpYXQiOjE3MTIzMDI2NTMsImlzcyI6Iklzc3VlciIsImF1ZCI6Iklzc3VlciJ9.E4QNVt9adKdsPhftMJYVeYcKtorIiivdK5bwpID65oXOd14D1kNLZTprzn2seQ0Bk7c8sNJq7w2IEQzvJIfXcQ");
+                //_client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
                 var elasticSearchResult = await _client.GetAsync($"userElasticSearch/get-list?pageNumber={pageNumber}&pageSize={pageSize}");
                 elasticSearchResult.EnsureSuccessStatusCode();
                 var response = await elasticSearchResult.Content.ReadAsStringAsync();

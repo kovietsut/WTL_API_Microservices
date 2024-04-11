@@ -70,6 +70,11 @@ namespace User.API.Persistence
                     {
                         IsEnabled = true,
                         Name = "TRANSLATOR"
+                    },
+                    new Role
+                    {
+                        IsEnabled = true,
+                        Name = "ISSUER"
                     });
                 await _context.SaveChangesAsync();
             }
@@ -90,7 +95,21 @@ namespace User.API.Persistence
                         Address = "Ho Chi Minh",
                         Gender = "Nam",
                         AvatarPath = null
-                    });
+                    },
+                    new UserEntity
+                    {
+                        IsEnabled = true,
+                        RoleId = 5,
+                        Email = "issuer@gmail.com",
+                        PasswordHash = "nld7cvF70f2JNhIOie8Wy1/VZza04zDXmZ8BtGjFBBE=",
+                        GoogleUserId = null,
+                        FullName = "Issuer",
+                        PhoneNumber = "0909255458",
+                        Address = "Ho Chi Minh",
+                        Gender = "Nam",
+                        AvatarPath = null
+                    }
+                    );
                 await _context.SaveChangesAsync();
             }
             if (!_context.Tokens.Any())

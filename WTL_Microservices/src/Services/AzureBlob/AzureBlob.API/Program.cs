@@ -13,7 +13,7 @@ try
     builder.Services.ConfigureCors();
     builder.Services.ConfigureSwagger();
     builder.Services.ConfigureAzureBlob(builder.Configuration);
-    //builder.Services.ConfigureJWT(builder.Configuration);
+    builder.Services.ConfigureJWT(builder.Configuration);
     builder.Services.ConfigureErrorCode(builder.Configuration);
     //builder.Services.ConfigureHealthChecks();
     builder.Services.AddHealthChecks();

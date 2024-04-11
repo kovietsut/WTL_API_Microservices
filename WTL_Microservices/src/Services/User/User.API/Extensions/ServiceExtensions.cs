@@ -3,6 +3,7 @@ using Contracts.Domains.Interfaces;
 using Infrastructure.Common;
 using Infrastructure.Common.Repositories;
 using Infrastructure.Extensions;
+using IssueToken;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -175,7 +176,7 @@ namespace User.API.Extensions
             services.AddHttpClient<IElasticSearchUserHttpRepository, ElasticSearchUserHttpRepository>("ElasticSearchAPI", (sp, cl) =>
             {
                 cl.BaseAddress = new Uri($"{urls.ElasticSearch}/api/");
-            }).AddHttpMessageHandler<LoggingDelegatingHandler>();
+            }).AddHttpMessageHandler<IssueTokenHandler>();
             services.AddScoped(sp => sp.GetService<IHttpClientFactory>()
                 .CreateClient("ElasticSearchAPI"));
         }
@@ -191,7 +192,7 @@ namespace User.API.Extensions
                 cl.BaseAddress = new Uri($"{urls.Authenticate}/api/");
             }).AddHttpMessageHandler<LoggingDelegatingHandler>();
             services.AddScoped(sp => sp.GetService<IHttpClientFactory>()
-                .CreateClient("ElasticSearchAPI"));
+                .CreateClient("AuthenticateAPI"));
         }
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>
@@ -204,6 +205,7 @@ namespace User.API.Extensions
             .AddScoped<ITokenRepository, TokenRepository>()
             .AddScoped<IRedisCacheRepository, RedisCacheRepository>()
             .AddTransient<LoggingDelegatingHandler>()
+            .AddTransient<IssueTokenHandler>()
             ;
     }
 }

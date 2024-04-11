@@ -134,6 +134,33 @@ namespace User.API.Repositories
             };
         }
 
+        public async Task<string> IssueToken(string email)
+        {
+            var currentUser = await _iUserRepository.GetUserByEmail(email);
+            if (currentUser == null) return null;
+            var role = currentUser.RoleId;
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+            var secretKeyBytes = Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]);
+            var tokenDescription = new SecurityTokenDescriptor
+            {
+                Issuer = _configuration["Jwt:Issuer"],
+                Audience = _configuration["Jwt:Issuer"],
+                Subject = new ClaimsIdentity(new[] {
+                    new Claim(JwtRegisteredClaimNames.Email, email),
+                    new Claim(JwtRegisteredClaimNames.Sub, currentUser.Id.ToString()),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim("Id", currentUser.Id.ToString()),
+                    new Claim("Email", currentUser.Email.ToString()),
+                    new Claim("Role", role.ToString()),
+                }),
+                Expires = DateTime.Now.AddDays(7),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes), SecurityAlgorithms.HmacSha512Signature)
+            };
+            var token = jwtTokenHandler.CreateToken(tokenDescription);
+            var accessToken = jwtTokenHandler.WriteToken(token);
+            return accessToken;
+        }
+
         // Login google
         public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(GoogleAuthModel model)
         {

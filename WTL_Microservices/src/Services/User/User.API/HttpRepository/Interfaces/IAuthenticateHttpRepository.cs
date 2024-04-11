@@ -5,6 +5,6 @@ namespace User.API.HttpRepository.Interfaces
 {
     public interface IAuthenticateHttpRepository
     {
-        Task<IActionResult> AuthenticateAsync(SignInDto model);
+        Task<IActionResult> AuthenticateAsync(EmailTokenDto model);
     }
 }

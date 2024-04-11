@@ -16,8 +16,8 @@ namespace AzureBlob.API.Extensions
             });
             app.UseMiddleware<ErrorWrappingMiddleware>();
             app.UseRouting();
-            //app.UseAuthentication();
-            //app.UseAuthorization();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseCors("AllowAll");
             app.UseRateLimiter();
             // app.UseHttpsRedirection(); //for production only

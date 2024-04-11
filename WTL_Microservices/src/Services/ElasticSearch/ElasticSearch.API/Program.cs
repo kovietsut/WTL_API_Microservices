@@ -13,7 +13,7 @@ try
     builder.Services.ConfigureCors();
     builder.Services.ConfigureSwagger();
     builder.Services.ConfigureErrorCode(builder.Configuration);
-    //builder.Services.ConfigureJWT(builder.Configuration);
+    builder.Services.ConfigureJWT(builder.Configuration);
     builder.Services.AddHealthChecks();
     builder.Services.AddElasticSearch(builder.Configuration);
     builder.Services.AddControllers();

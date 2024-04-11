@@ -19,7 +19,6 @@ using Shared.Common.Interfaces;
 using Shared.Common;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MassTransit;
-using Manga.API.Application.IntegrationEvents.EventsHanler;
 using System.Threading.RateLimiting;
 using Manga.Application.Services.Interfaces;
 using Manga.Application.Services;
