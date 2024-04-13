@@ -2,20 +2,17 @@
 using Infrastructure.Common.Repositories;
 using Manga.Application.Common.Repositories.Interfaces;
 using Manga.Application.Services.Interfaces;
-using Manga.Infrastructure.Entities;
 using Manga.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Shared.Common;
 using Shared.Common.Interfaces;
 using Shared.DTOs;
 using Shared.DTOs.Manga;
 using Shared.DTOs.MangaGenre;
 using Shared.SeedWork;
-using System;
 using MangaEntity = Manga.Infrastructure.Entities.Manga;
 
 namespace Manga.Application.Common.Repositories
