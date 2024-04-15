@@ -45,6 +45,17 @@ services:
       - sqlserver_manga_hangfire_data:/var/opt/mssql
     ports:
       - "1437:1433"
+  #accesscontroldb: sql server
+  accesscontroldb:
+    container_name: accesscontroldb
+    environment:
+      SA_PASSWORD: "Magicgame123456"
+      ACCEPT_EULA: "Y"
+    restart: always
+    volumes:
+      - sqlserver_accesscontrol_data:/var/opt/mssql
+    ports:
+      - "1438:1433"
   #infrastructure section
   rabbitmq:
     container_name: rabbitmq
@@ -137,6 +148,17 @@ services:
       - ASPNETCORE_URLS=http://+:80
     ports:
       - "6005:80"
+    restart: always
+  accesscontrol.api:
+    container_name: accesscontrol.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - "DatabaseSettings:ConnectionString=Server=accesscontroldb;Database=AccessControlDb;User Id=sa;Password=Magicgame123456;Multipleactiveresultsets=true;TrustServerCertificate=true"
+    depends_on:
+      - accesscontroldb
+    ports:
+      - "6006:80"
     restart: always
 
   webstatus:

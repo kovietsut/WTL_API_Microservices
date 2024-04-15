@@ -17,6 +17,9 @@ services:
   mangahangfiredb:
     image: mcr.microsoft.com/mssql/server:2019-latest
 
+  accesscontroldb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+
   #infrastructure section
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -55,12 +58,18 @@ services:
       context: .
       dockerfile: Services/ElasticSearch/ElasticSearch.API/Dockerfile
 
+  accesscontrol.api:
+    image: ${DOCKER_REGISTRY-}accesscontrol-api:${PLATFORM:-linux}-${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Services/AccessControl/AccessControl.API/Dockerfile
+
   webstatus:
     image: ${DOCKER_REGISTRY-}webstatus:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
       dockerfile: WebApps/WebHealthStatus/Dockerfile
-      
+
 #network section
 networks:
   default:
@@ -73,6 +82,8 @@ volumes:
     name: sqlserver_user_data
   sqlserver_manga_data:
     name: sqlserver_manga_data
+  sqlserver_accesscontrol_data:
+    name: sqlserver_accesscontrol_data
   sqlserver_manga_hangfire_data:
     name: sqlserver_manga_hangfire_data
   rabbitmq_data:

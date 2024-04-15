@@ -63,7 +63,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ElasticSearch", "ElasticSea
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElasticSearch.API", "src\Services\ElasticSearch\ElasticSearch.API\ElasticSearch.API.csproj", "{EF60FBD9-393C-425A-A765-8B3E5D64BE07}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IssueToken", "src\BuildingBlocks\IssueToken\IssueToken\IssueToken.csproj", "{174B5375-4AC2-418A-9A13-2E15200D4961}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IssueToken", "src\BuildingBlocks\IssueToken\IssueToken\IssueToken.csproj", "{174B5375-4AC2-418A-9A13-2E15200D4961}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AccessControl", "AccessControl", "{208C6463-A7BF-486D-92C8-906704E8D55D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessControl.API", "src\Services\AccessControl\AccessControl.API\AccessControl.API.csproj", "{24966DD8-941F-4F07-B114-4A0960BC4D60}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -139,6 +143,10 @@ Global
 		{174B5375-4AC2-418A-9A13-2E15200D4961}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{174B5375-4AC2-418A-9A13-2E15200D4961}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{174B5375-4AC2-418A-9A13-2E15200D4961}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24966DD8-941F-4F07-B114-4A0960BC4D60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24966DD8-941F-4F07-B114-4A0960BC4D60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24966DD8-941F-4F07-B114-4A0960BC4D60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24966DD8-941F-4F07-B114-4A0960BC4D60}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -173,6 +181,8 @@ Global
 		{D983426C-43DA-4090-8476-994631CF40AC} = {81B2D00C-11A4-4CD3-BE72-1E5596D56029}
 		{EF60FBD9-393C-425A-A765-8B3E5D64BE07} = {D983426C-43DA-4090-8476-994631CF40AC}
 		{174B5375-4AC2-418A-9A13-2E15200D4961} = {6D22CF0E-B4AB-4947-81D9-DE09F004CD56}
+		{208C6463-A7BF-486D-92C8-906704E8D55D} = {81B2D00C-11A4-4CD3-BE72-1E5596D56029}
+		{24966DD8-941F-4F07-B114-4A0960BC4D60} = {208C6463-A7BF-486D-92C8-906704E8D55D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {28F19872-26EC-4614-B42D-6DC7CCB1D7A1}
