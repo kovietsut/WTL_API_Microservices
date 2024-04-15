@@ -1,6 +1,7 @@
 ﻿using AccessControl.API.Entities;
 using Contracts.Domains.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using ActionEntity = AccessControl.API.Entities.Action;
 
 namespace AccessControl.API.Persistence
 {
@@ -10,14 +11,14 @@ namespace AccessControl.API.Persistence
         {
         }
 
-        public DbSet<Entities.Action> Actions { get; set; }
+        public DbSet<ActionEntity> Actions { get; set; }
         public DbSet<Permission> Permissions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Entities.Action>(entity =>
+            modelBuilder.Entity<ActionEntity>(entity =>
             {
                 entity.HasKey(e => e.Id);
 

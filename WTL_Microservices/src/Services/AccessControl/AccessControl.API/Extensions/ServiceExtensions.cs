@@ -8,7 +8,6 @@ using Microsoft.OpenApi.Models;
 using Shared.Configurations;
 using Shared.DTOs;
 using System.Text;
-using System.Threading.RateLimiting;
 
 namespace AccessControl.API.Extensions
 {
@@ -86,7 +85,7 @@ namespace AccessControl.API.Extensions
         {
             services.AddSwaggerGen(swagger =>
             {
-                swagger.SwaggerDoc("v1", new OpenApiInfo { Title = "Manga.API", Version = "v1" });
+                swagger.SwaggerDoc("v1", new OpenApiInfo { Title = "AccessControl.API", Version = "v1" });
                 swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -113,24 +112,9 @@ namespace AccessControl.API.Extensions
             });
         }
 
-        public static void ConfigureRateLimtter(this IServiceCollection services)
-        {
-            services.AddRateLimiter(options =>
-            {
-                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-                options.AddPolicy("fixed", httpContext =>
-                    RateLimitPartition.GetFixedWindowLimiter(
-                            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
-                            factory: _ => new FixedWindowRateLimiterOptions
-                            {
-                                PermitLimit = 4,
-                                Window = TimeSpan.FromSeconds(12)
-                            }));
-            });
-        }
-
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>
         services
+            .AddScoped<AccessControlContextSeed>()
             .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
             ;
     }
