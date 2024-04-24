@@ -33,14 +33,13 @@ namespace Manga.Application.Features.Albums.Commands
             _logger.Information($"BEGIN: {MethodName}");
             var dto = new CreateAlbumDto()
             {
-                
                 Name = query.Name,
                 CreatedBy = query.CreatedBy,
                 CoverImage = query.CoverImage
             };
-            var mangas = await _albumRepository.CreateAlbum(dto);
+            var album = await _albumRepository.CreateAlbum(dto);
             _logger.Information($"END: {MethodName}");
-            return mangas;
+            return album;
         }
     }
 }

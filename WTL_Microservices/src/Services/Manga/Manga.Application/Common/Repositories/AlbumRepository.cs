@@ -101,8 +101,9 @@ namespace Manga.Application.Common.Repositories
                     {
                         AlbumId = x.Id,
                         x.IsEnabled,
-                        x.Name,
                         x.CreatedAt,
+                        x.CreatedBy,
+                        x.Name,
                         CoverImage = _sasTokenGenerator.GenerateCoverImageUriWithSas(x.CoverImage)
                     });
                 var listData = list.Skip(((int)pageNumber - 1) * (int)pageSize)
