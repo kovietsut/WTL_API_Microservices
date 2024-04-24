@@ -206,6 +206,7 @@ namespace Manga.API.Extensions
             .AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>))
             .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
             .AddScoped<IMangaRepository, MangaRepository>()
+            .AddScoped<IAlbumRepository, AlbumRepository>()
             .AddScoped<IMangaGenreRepository, MangaGenreRepository>()
             .AddScoped<IGenreRepository, GenreRepository>()
             .AddScoped<IChapterRepository, ChapterRepository>()

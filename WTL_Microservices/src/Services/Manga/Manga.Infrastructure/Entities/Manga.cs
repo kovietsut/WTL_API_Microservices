@@ -34,5 +34,7 @@ namespace Manga.Infrastructure.Entities
         public virtual ICollection<MangaGenre> MangasGenres { get; set; } = new List<MangaGenre>();
 
         public virtual ICollection<MangaInteraction> UserMangaInteractions { get; set; } = new List<MangaInteraction>();
+        
+        public virtual ICollection<AlbumManga> AlbumsMangas { get; set; } = new List<AlbumManga>();
     }
 }

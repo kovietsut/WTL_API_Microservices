@@ -37,6 +37,7 @@ namespace Shared.Common
 
         public string GenerateCoverImageUriWithSas(string coverImageUrl)
         {
+            if(string.IsNullOrEmpty(coverImageUrl)) return null;
             var (folderName, fileName) = Util.ExtractNamesFromUrl(coverImageUrl);
             var sasToken = GenerateSasToken(fileName, folderName);
             var blobUriWithSas = new Uri(coverImageUrl + "?" + sasToken).ToString();

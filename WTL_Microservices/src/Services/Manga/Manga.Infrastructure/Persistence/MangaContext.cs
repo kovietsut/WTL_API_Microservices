@@ -26,6 +26,8 @@ namespace Manga.Infrastructure.Persistence
 
         public virtual DbSet<MangaInteraction> MangaInteractions { get; set; }
         public virtual DbSet<ChapterCommentReaction> ChapterCommentReactions { get; set; }
+        public virtual DbSet<Album> Albums { get; set; }
+        public virtual DbSet<AlbumManga> AlbumsMangas { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -134,7 +136,27 @@ namespace Manga.Infrastructure.Persistence
                     .HasForeignKey(d => d.MangaId);
 
                 entity.HasOne(d => d.Chapter).WithMany(p => p.MangaInteractions)
-                    .HasForeignKey(d => d.ChapterId);
+                    .HasForeignKey(d => d.ChapterId); 
+            });
+
+            modelBuilder.Entity<Album>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).HasMaxLength(200);
+                entity.Property(e => e.UserId);
+                entity.Property(e => e.CreatedDate);
+                entity.Property(e => e.CoverImage).IsUnicode(false);
+            });
+
+            modelBuilder.Entity<AlbumManga>(entity => 
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.HasOne(m => m.Manga).WithMany(am => am.AlbumsMangas)
+                    .HasForeignKey(am => am.MangaId);
+
+                entity.HasOne(a => a.Album).WithMany(am => am.AlbumsMangas)
+                    .HasForeignKey(am => am.AlbumId);
             });
         }
     }
