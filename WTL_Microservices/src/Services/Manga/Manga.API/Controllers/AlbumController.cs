@@ -47,7 +47,7 @@ namespace Manga.API.Controllers
             var query = new CreateAlbumCommand()
             {
                 Name = model.Name,
-                UserId = model.UserId,
+                CreatedBy = model.CreatedBy,
                 CoverImage = model.CoverImage,
             };
             var result = await _mediator.Send(query);

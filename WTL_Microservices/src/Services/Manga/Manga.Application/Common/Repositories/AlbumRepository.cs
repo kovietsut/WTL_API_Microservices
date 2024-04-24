@@ -51,8 +51,8 @@ namespace Manga.Application.Common.Repositories
                 Album album = new()
                 {
                     IsEnabled = true,
-                    UserId = model.UserId,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedBy = model.CreatedBy,
+                    CreatedAt = DateTimeOffset.UtcNow,
                     Name = model.Name != null ? model.Name.Trim() : model.Name,
                     CoverImage = model.CoverImage != null ? model.CoverImage.Trim() : model.CoverImage,
                 };
@@ -83,8 +83,9 @@ namespace Manga.Application.Common.Repositories
             {
                 album.Id,
                 album.IsEnabled,
-                album.UserId,
-                album.CreatedDate,
+                album.CreatedBy,
+                album.CreatedAt,
+                album.Name,
                 CoverImage = _sasTokenGenerator.GenerateCoverImageUriWithSas(album.CoverImage),
             };
             return JsonUtil.Success(albumResult);
@@ -101,7 +102,7 @@ namespace Manga.Application.Common.Repositories
                         AlbumId = x.Id,
                         x.IsEnabled,
                         x.Name,
-                        x.CreatedDate,
+                        x.CreatedAt,
                         CoverImage = _sasTokenGenerator.GenerateCoverImageUriWithSas(x.CoverImage)
                     });
                 var listData = list.Skip(((int)pageNumber - 1) * (int)pageSize)
@@ -121,45 +122,46 @@ namespace Manga.Application.Common.Repositories
 
         public async Task<IActionResult> UpdateAlbum(long albumId, UpdateAlbumDto model)
         {
-            try
-            {
-                // Validator
-                var validator = new UpdateAlbumValidator();
-                var check = await validator.ValidateAsync(model);
-                if (!check.IsValid)
-                {
-                    return JsonUtil.Errors(StatusCodes.Status400BadRequest, _errorCodes.Status400.ConstraintViolation, check.Errors);
-                }
-                // Manga
-                var currentAlbum = await GetByIdAsync(albumId);
-                if (currentAlbum == null)
-                {
-                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Album does not exist");
-                }
-                currentAlbum.ModifiedAt = DateTimeOffset.UtcNow;
-                currentAlbum.ModifiedBy = model.CreatedBy;
-                currentAlbum.Name = model.Name;
-                currentAlbum.Preface = model.Preface;
-                currentAlbum.Type = model.Type;
-                currentAlbum.Status = model.Status;
-                currentAlbum.AmountOfReadings = model.AmountOfReadings;
-                currentAlbum.CoverImage = model.CoverImage;
-                currentAlbum.Language = model.Language;
-                currentAlbum.HasAdult = model.HasAdult;
-                await UpdateAsync(currentManga);
-                // MangaGenre
-                var mangaGenres = new UpdateMangaGenreDto()
-                {
-                    ListGenreId = model.ListGenreId,
-                    MangaId = currentManga.Id,
-                };
-                await _mangaGenreRepository.UpdateMangaGenre(mangaGenres);
-                return JsonUtil.Success(currentManga);
-            }
-            catch (Exception ex)
-            {
-                return JsonUtil.Error(StatusCodes.Status500InternalServerError, _errorCodes.Status500.APIServerError, ex.Message);
-            }
+            //try
+            //{
+            //    // Validator
+            //    var validator = new UpdateAlbumValidator();
+            //    var check = await validator.ValidateAsync(model);
+            //    if (!check.IsValid)
+            //    {
+            //        return JsonUtil.Errors(StatusCodes.Status400BadRequest, _errorCodes.Status400.ConstraintViolation, check.Errors);
+            //    }
+            //    // Manga
+            //    var currentAlbum = await GetByIdAsync(albumId);
+            //    if (currentAlbum == null)
+            //    {
+            //        return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Album does not exist");
+            //    }
+            //    currentAlbum.ModifiedAt = DateTimeOffset.UtcNow;
+            //    currentAlbum.ModifiedBy = model.CreatedBy;
+            //    currentAlbum.Name = model.Name;
+            //    currentAlbum.Preface = model.Preface;
+            //    currentAlbum.Type = model.Type;
+            //    currentAlbum.Status = model.Status;
+            //    currentAlbum.AmountOfReadings = model.AmountOfReadings;
+            //    currentAlbum.CoverImage = model.CoverImage;
+            //    currentAlbum.Language = model.Language;
+            //    currentAlbum.HasAdult = model.HasAdult;
+            //    await UpdateAsync(currentManga);
+            //    // MangaGenre
+            //    var mangaGenres = new UpdateMangaGenreDto()
+            //    {
+            //        ListGenreId = model.ListGenreId,
+            //        MangaId = currentManga.Id,
+            //    };
+            //    await _mangaGenreRepository.UpdateMangaGenre(mangaGenres);
+            //    return JsonUtil.Success(currentManga);
+            //}
+            //catch (Exception ex)
+            //{
+            //    return JsonUtil.Error(StatusCodes.Status500InternalServerError, _errorCodes.Status500.APIServerError, ex.Message);
+            //}
+            throw new NotImplementedException();
         }
     }
 }

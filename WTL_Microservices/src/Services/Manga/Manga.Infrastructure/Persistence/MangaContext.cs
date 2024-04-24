@@ -143,8 +143,10 @@ namespace Manga.Infrastructure.Persistence
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).HasMaxLength(200);
-                entity.Property(e => e.UserId);
-                entity.Property(e => e.CreatedDate);
+                entity.Property(e => e.CreatedAt);
+                entity.Property(e => e.CreatedBy);
+                entity.Property(e => e.ModifiedAt);
+                entity.Property(e => e.ModifiedBy);
                 entity.Property(e => e.CoverImage).IsUnicode(false);
             });
 

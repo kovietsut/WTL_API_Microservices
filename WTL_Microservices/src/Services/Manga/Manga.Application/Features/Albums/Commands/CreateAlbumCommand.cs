@@ -12,7 +12,7 @@ namespace Manga.Application.Features.Albums.Commands
     public class CreateAlbumCommand : IRequest<IActionResult>
     {
         public string Name { get; set; }
-        public long UserId { get; set; }
+        public long CreatedBy { get; set; }
         public string CoverImage { get; set; }
     }
 
@@ -35,7 +35,7 @@ namespace Manga.Application.Features.Albums.Commands
             {
                 
                 Name = query.Name,
-                UserId = query.UserId,
+                CreatedBy = query.CreatedBy,
                 CoverImage = query.CoverImage
             };
             var mangas = await _albumRepository.CreateAlbum(dto);
