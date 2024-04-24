@@ -2,6 +2,7 @@
 using Manga.Application.Features.Albums.Queries;
 using Manga.Application.Features.Mangas.Commands;
 using Manga.Application.Features.Mangas.Queries;
+using Manga.Infrastructure.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -50,6 +51,28 @@ namespace Manga.API.Controllers
                 CreatedBy = model.CreatedBy,
                 CoverImage = model.CoverImage,
             };
+            var result = await _mediator.Send(query);
+            return result;
+        }
+
+        [HttpPut("{albumId}")]
+        public async Task<IActionResult> Update(long albumId, [FromBody] UpdateAlbumDto model)
+        {
+            var query = new UpdateAlbumCommand()
+            {
+                AlbumId = albumId,
+                CreatedBy = model.CreatedBy,
+                Name = model.Name,
+                CoverImage = model.CoverImage,
+            };
+            var result = await _mediator.Send(query);
+            return result;
+        }
+
+        [HttpDelete("{albumId}")]
+        public async Task<IActionResult> Delete(long albumId)
+        {
+            var query = new DeleteAlbumCommand(albumId);
             var result = await _mediator.Send(query);
             return result;
         }

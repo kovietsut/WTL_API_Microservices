@@ -65,9 +65,23 @@ namespace Manga.Application.Common.Repositories
             }
         }
 
-        public Task<IActionResult> DeleteAlbum(long albumId)
+        public async Task<IActionResult> DeleteAlbum(long albumId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var currentAlbum = await GetByIdAsync(albumId);
+                if (currentAlbum == null)
+                {
+                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Album does not exist");
+                }
+                currentAlbum.IsEnabled = false;
+                await UpdateAsync(currentAlbum);
+                return JsonUtil.Success(currentAlbum.Id);
+            }
+            catch (Exception ex)
+            {
+                return JsonUtil.Error(StatusCodes.Status500InternalServerError, _errorCodes.Status500.APIServerError, ex.Message);
+            }
         }
 
         public Task<AlbumEntity> GetAlbumById(long albumId) => FindByCondition(x => x.Id == albumId).SingleOrDefaultAsync();
@@ -123,46 +137,32 @@ namespace Manga.Application.Common.Repositories
 
         public async Task<IActionResult> UpdateAlbum(long albumId, UpdateAlbumDto model)
         {
-            //try
-            //{
-            //    // Validator
-            //    var validator = new UpdateAlbumValidator();
-            //    var check = await validator.ValidateAsync(model);
-            //    if (!check.IsValid)
-            //    {
-            //        return JsonUtil.Errors(StatusCodes.Status400BadRequest, _errorCodes.Status400.ConstraintViolation, check.Errors);
-            //    }
-            //    // Manga
-            //    var currentAlbum = await GetByIdAsync(albumId);
-            //    if (currentAlbum == null)
-            //    {
-            //        return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Album does not exist");
-            //    }
-            //    currentAlbum.ModifiedAt = DateTimeOffset.UtcNow;
-            //    currentAlbum.ModifiedBy = model.CreatedBy;
-            //    currentAlbum.Name = model.Name;
-            //    currentAlbum.Preface = model.Preface;
-            //    currentAlbum.Type = model.Type;
-            //    currentAlbum.Status = model.Status;
-            //    currentAlbum.AmountOfReadings = model.AmountOfReadings;
-            //    currentAlbum.CoverImage = model.CoverImage;
-            //    currentAlbum.Language = model.Language;
-            //    currentAlbum.HasAdult = model.HasAdult;
-            //    await UpdateAsync(currentManga);
-            //    // MangaGenre
-            //    var mangaGenres = new UpdateMangaGenreDto()
-            //    {
-            //        ListGenreId = model.ListGenreId,
-            //        MangaId = currentManga.Id,
-            //    };
-            //    await _mangaGenreRepository.UpdateMangaGenre(mangaGenres);
-            //    return JsonUtil.Success(currentManga);
-            //}
-            //catch (Exception ex)
-            //{
-            //    return JsonUtil.Error(StatusCodes.Status500InternalServerError, _errorCodes.Status500.APIServerError, ex.Message);
-            //}
-            throw new NotImplementedException();
+            try
+            {
+                // Validator
+                var validator = new UpdateAlbumValidator();
+                var check = await validator.ValidateAsync(model);
+                if (!check.IsValid)
+                {
+                    return JsonUtil.Errors(StatusCodes.Status400BadRequest, _errorCodes.Status400.ConstraintViolation, check.Errors);
+                }
+                // Album
+                var currentAlbum = await GetByIdAsync(albumId);
+                if (currentAlbum == null)
+                {
+                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Album does not exist");
+                }
+                currentAlbum.ModifiedAt = DateTimeOffset.UtcNow;
+                currentAlbum.ModifiedBy = model.CreatedBy;
+                currentAlbum.Name = model.Name;
+                currentAlbum.CoverImage = model.CoverImage;
+                await UpdateAsync(currentAlbum);
+                return JsonUtil.Success(currentAlbum);
+            }
+            catch (Exception ex)
+            {
+                return JsonUtil.Error(StatusCodes.Status500InternalServerError, _errorCodes.Status500.APIServerError, ex.Message);
+            }
         }
     }
 }
