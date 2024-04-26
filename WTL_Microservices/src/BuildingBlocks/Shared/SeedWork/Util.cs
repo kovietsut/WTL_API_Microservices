@@ -37,6 +37,7 @@ namespace Shared.SeedWork
 
         public static (string folderName, string fileName) ExtractNamesFromUrl(string url)
         {
+            if(string.IsNullOrEmpty(url)) return (string.Empty, string.Empty);
             Uri uri = new(url);
             string path = uri.AbsolutePath;
             string[] segments = path.Trim('/').Split('/');

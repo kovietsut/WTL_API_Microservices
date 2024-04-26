@@ -1,7 +1,12 @@
-var builder = WebApplication.CreateBuilder(args);
+using Serilog;
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+var builder = WebApplication.CreateBuilder(args);
+Log.Information($"Start {builder.Environment.ApplicationName} up");
+
+try
+{
+    // Add services to the container.
+    builder.Services.AddControllersWithViews();
 builder.Services.AddHealthChecksUI()
     .AddInMemoryStorage();
 
@@ -31,3 +36,15 @@ app.UseEndpoints(endpoints =>
 });
 
 app.Run();
+}
+catch (Exception ex)
+{
+    string type = ex.GetType().Name;
+    if (type.Equals("StopTheHostException", StringComparison.Ordinal)) throw;
+    Log.Fatal(ex, $"Unhandled exception: {ex.Message}");
+}
+finally
+{
+    Log.Information($"Shut down {builder.Environment.ApplicationName} complete");
+    Log.CloseAndFlush();
+}
