@@ -23,5 +23,10 @@ namespace Shared.SeedWork
         {
             return array != null && array.Count >= 1 && array.All(element => element is long);
         }
+
+        internal static bool IsValidLongArray()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

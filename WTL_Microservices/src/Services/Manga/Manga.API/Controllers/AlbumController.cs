@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DTOs.Album;
+using Shared.DTOs.AlbumManga;
 using Shared.DTOs.Manga;
 
 namespace Manga.API.Controllers
@@ -73,6 +74,26 @@ namespace Manga.API.Controllers
         public async Task<IActionResult> Delete(long albumId)
         {
             var query = new DeleteAlbumCommand(albumId);
+            var result = await _mediator.Send(query);
+            return result;
+        }
+
+        [HttpPost("save-to-album")]
+        public async Task<IActionResult> SaveToAlbum([FromBody] SaveToAlbumDto model)
+        {
+            var query = new SaveToAlbumCommand()
+            {
+                AlbumId = model.AlbumId,
+                ListMangaId = model.ListMangaId,
+            };
+            var result = await _mediator.Send(query);
+            return result;
+        }
+
+        [HttpDelete("remove-from-album/{mangaId}")]
+        public async Task<IActionResult> RemoveFromAlbum(long mangaId)
+        {
+            var query = new RemoveFromAlbumCommand(mangaId);
             var result = await _mediator.Send(query);
             return result;
         }

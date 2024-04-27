@@ -12,7 +12,7 @@ namespace Manga.Application.Common.Repositories.Interfaces
 {
     public interface IAlbumRepository
     {
-        Task<IActionResult> GetAlbum(long userId);
+        Task<IActionResult> GetAlbum(long albumId);
         Task<AlbumEntity> GetAlbumById(long albumId);
         Task<IActionResult> GetListAlbum(int? pageNumber, int? pageSize, string? searchText);
         Task<IActionResult> CreateAlbum(CreateAlbumDto model);

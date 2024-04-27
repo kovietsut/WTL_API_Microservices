@@ -30,12 +30,14 @@ namespace Manga.Application.Common.Repositories
     {
         private readonly ErrorCode _errorCodes;
         private readonly ISasTokenGenerator _sasTokenGenerator;
+        private readonly IAlbumMangaRepository _albumMangaRepository;
 
         public AlbumRepository(MangaContext dbContext, IUnitOfWork<MangaContext> unitOfWork,
-            IOptions<ErrorCode> errorCode, ISasTokenGenerator sasTokenGenerator) : base(dbContext, unitOfWork)
+            IOptions<ErrorCode> errorCode, ISasTokenGenerator sasTokenGenerator, IAlbumMangaRepository albumMangaRepository) : base(dbContext, unitOfWork)
         {
             _errorCodes = errorCode.Value;
             _sasTokenGenerator = sasTokenGenerator;
+            _albumMangaRepository = albumMangaRepository;
         }
 
         public async Task<IActionResult> CreateAlbum(CreateAlbumDto model)
@@ -86,10 +88,11 @@ namespace Manga.Application.Common.Repositories
 
         public Task<AlbumEntity> GetAlbumById(long albumId) => FindByCondition(x => x.Id == albumId).SingleOrDefaultAsync();
 
-        public async Task<IActionResult> GetAlbum(long userId)
+        public async Task<IActionResult> GetAlbum(long albumId)
         {
-            var album = await GetAlbumById(userId);
-            if(album == null)
+            var album = await GetAlbumById(albumId);
+            var mangaList = await _albumMangaRepository.GetListAlbumManga(albumId);
+            if (album == null)
             {
                 return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Album does not exist");
             }
@@ -101,6 +104,7 @@ namespace Manga.Application.Common.Repositories
                 album.CreatedAt,
                 album.Name,
                 CoverImage = _sasTokenGenerator.GenerateCoverImageUriWithSas(album.CoverImage),
+                mangaList
             };
             return JsonUtil.Success(albumResult);
         }
