@@ -15,7 +15,7 @@ namespace Shared.DTOs.AlbumManga
             RuleFor(x => x.AlbumId).NotEmpty().WithMessage("AlbumId is required")
                 .Must((albumId) => CheckValidationHelper.IsIntOrLong(albumId));
             RuleFor(x => x.ListMangaId).NotEmpty().WithMessage("ListMangaId is required")
-                .Must((listMangaId) => CheckValidationHelper.IsValidLongArray());
+                .Must(CheckValidationHelper.IsValidLongArray);
         }
     }
 }

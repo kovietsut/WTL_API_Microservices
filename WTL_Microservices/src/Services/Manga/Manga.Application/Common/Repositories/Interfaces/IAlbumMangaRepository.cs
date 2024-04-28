@@ -8,6 +8,7 @@ namespace Manga.Application.Common.Repositories.Interfaces
     {
         Task<List<long>> GetListAlbumManga(long albumId);
         Task<IActionResult> SaveToAlbum(SaveToAlbumDto model);
-        Task<IActionResult> RemoveFromAlbum(long mangaId);
+        Task<IActionResult> RemoveFromAlbum(long albumMangaId);
+        Task<IActionResult> RemoveListFromAlbum(string albumMangaIds);
     }
 }

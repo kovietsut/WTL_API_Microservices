@@ -90,11 +90,19 @@ namespace Manga.API.Controllers
             return result;
         }
 
-        [HttpDelete("remove-from-album/{mangaId}")]
-        public async Task<IActionResult> RemoveFromAlbum(long mangaId)
+        [HttpDelete("remove-from-album/{albumMangaId}")]
+        public async Task<IActionResult> RemoveFromAlbum(long albumMangaId)
         {
-            var query = new RemoveFromAlbumCommand(mangaId);
+            var query = new RemoveFromAlbumCommand(albumMangaId);
             var result = await _mediator.Send(query);
+            return result;
+        }
+
+        [HttpDelete("remove-list-from-album")]
+        public async Task<IActionResult> RemoveListFromAlbum(string albumMangaIds)
+        {
+            var query = new RemoveListAlbumCommand(albumMangaIds);
+            var result = await _mediator.Send(query); 
             return result;
         }
     }

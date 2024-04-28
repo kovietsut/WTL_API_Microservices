@@ -6,9 +6,11 @@ using Manga.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Shared.DTOs;
 using Shared.DTOs.AlbumManga;
 using Shared.SeedWork;
+using System.Collections.Generic;
 using static MassTransit.ValidationResultExtensions;
 using MangaEntity = Manga.Infrastructure.Entities.Manga;
 
@@ -29,17 +31,17 @@ namespace Manga.Application.Common.Repositories
             return listAlbumManga;
         }
 
-        public async Task<IActionResult> RemoveFromAlbum(long mangaId)
+        public async Task<IActionResult> RemoveFromAlbum(long albumMangaId)
         {
             try
             {
-                var mangaInAlbum = FindAll().FirstOrDefault(x => x.MangaId == mangaId);
-                if(mangaInAlbum == null || !mangaInAlbum.IsEnabled)
+                var albumManga = FindAll().FirstOrDefault(x => x.Id == albumMangaId);
+                if(albumManga == null || !albumManga.IsEnabled)
                 {
                     return JsonUtil.Error(StatusCodes.Status400BadRequest, _errorCodes.Status400.SystemError, "Manga not found");
                 }
-                mangaInAlbum.IsEnabled = false;
-                await UpdateAsync(mangaInAlbum);
+                albumManga.IsEnabled = false;
+                await UpdateAsync(albumManga);
                 return JsonUtil.Success("Manga has been removed!");
             }
             catch (Exception ex)
@@ -47,6 +49,42 @@ namespace Manga.Application.Common.Repositories
                 return JsonUtil.Error(StatusCodes.Status400BadRequest, _errorCodes.Status400.SystemError, ex.Message);
             }
         }
+
+        public async Task<IActionResult> RemoveListFromAlbum(string albumMangaIds)
+        {
+            try
+            {
+                //await BeginTransactionAsync();
+                var list = new List<AlbumManga>();
+                if (albumMangaIds.IsNullOrEmpty())
+                {
+                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "ListAlbumMangaId cannot be null");
+                }
+                var listIds = Util.SplitStringToArray(albumMangaIds);
+                var mangas = FindAll().Where(x => listIds.Contains(x.Id));
+                if(mangas == null || mangas.Count() == 0)
+                {
+                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Cannot get list manga");
+                }
+                foreach (var manga in mangas)
+                {
+                    manga.IsEnabled = false;
+                    list.Add(manga);
+                }
+                var listRemoved = mangas.Select(x => x.Id).ToList();
+                if (list.Count != 0)
+                {
+                    await UpdateListAsync(list);
+                }
+                //await EndTransactionAsync();
+                return JsonUtil.Success(listRemoved);
+            }
+            catch (Exception ex)
+            {
+                return JsonUtil.Error(StatusCodes.Status400BadRequest, _errorCodes.Status400.SystemError, ex.Message);
+            }
+        }
+        
 
         public async Task<IActionResult> SaveToAlbum(SaveToAlbumDto model)
         {
@@ -60,6 +98,7 @@ namespace Manga.Application.Common.Repositories
                         IsEnabled = true,
                         AlbumId = model.AlbumId,
                         MangaId = id,
+                        AddedDate = DateTimeOffset.UtcNow
                     });
                 });
                 var result = await CreateListAsync(albumMangas);
