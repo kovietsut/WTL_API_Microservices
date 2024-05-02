@@ -1,12 +1,6 @@
-﻿using Manga.Infrastructure.Entities;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Shared.DTOs.Album;
 using AlbumEntity = Manga.Infrastructure.Entities.Album;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Manga.Application.Common.Repositories.Interfaces
 {

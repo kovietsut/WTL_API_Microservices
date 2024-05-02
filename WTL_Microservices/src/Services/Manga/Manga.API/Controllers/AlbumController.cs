@@ -1,15 +1,10 @@
 ﻿using Manga.Application.Features.Albums.Commands;
 using Manga.Application.Features.Albums.Queries;
-using Manga.Application.Features.Mangas.Commands;
-using Manga.Application.Features.Mangas.Queries;
-using Manga.Infrastructure.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DTOs.Album;
 using Shared.DTOs.AlbumManga;
-using Shared.DTOs.Manga;
 
 namespace Manga.API.Controllers
 {

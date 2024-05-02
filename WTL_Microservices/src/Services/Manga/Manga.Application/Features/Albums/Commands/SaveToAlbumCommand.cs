@@ -1,7 +1,6 @@
 ﻿using Manga.Application.Common.Repositories.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DTOs.Album;
 using Serilog;
 using Shared.DTOs.AlbumManga;
 

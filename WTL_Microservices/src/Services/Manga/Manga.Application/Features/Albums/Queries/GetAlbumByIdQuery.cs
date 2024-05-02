@@ -2,7 +2,6 @@
 using MediatR;
 using Serilog;
 using Microsoft.AspNetCore.Mvc;
-using MailKit.Search;
 
 
 namespace Manga.Application.Features.Albums.Queries

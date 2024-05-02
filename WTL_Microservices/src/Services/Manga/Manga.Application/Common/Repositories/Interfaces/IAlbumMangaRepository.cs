@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Shared.DTOs.AlbumManga;
-using MangaEntity = Manga.Infrastructure.Entities.Manga;
 
 namespace Manga.Application.Common.Repositories.Interfaces
 {

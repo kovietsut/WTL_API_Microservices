@@ -1,28 +1,18 @@
 ﻿using Infrastructure.Common.Repositories;
 using Manga.Application.Common.Repositories.Interfaces;
 using AlbumEntity = Manga.Infrastructure.Entities.Album;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Manga.Infrastructure.Persistence;
 using Contracts.Domains.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DTOs.Album;
-using Manga.Application.Services.Interfaces;
 using Shared.Common.Interfaces;
 using Shared.DTOs;
-using Manga.Application.Services;
-using Shared.Common;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Http;
 using Shared.SeedWork;
 using Microsoft.EntityFrameworkCore;
 using Manga.Infrastructure.Entities;
 using ServiceStack;
-using Shared.DTOs.MangaGenre;
-using Shared.DTOs.Manga;
 
 namespace Manga.Application.Common.Repositories
 {

@@ -7,14 +7,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Shared.Common;
 using Shared.Common.Interfaces;
 using Shared.DTOs;
 using Shared.DTOs.AlbumManga;
 using Shared.SeedWork;
-using System.Collections.Generic;
-using static MassTransit.ValidationResultExtensions;
-using MangaEntity = Manga.Infrastructure.Entities.Manga;
 
 namespace Manga.Application.Common.Repositories
 {
