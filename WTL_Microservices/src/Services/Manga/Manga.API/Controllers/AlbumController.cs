@@ -36,9 +36,9 @@ namespace Manga.API.Controllers
 
         [AllowAnonymous]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(long id)
+        public async Task<IActionResult> GetById(long id, int? pageNumber, int? pageSize)
         {
-            var query = new GetAlbumByIdQuery(id);
+            var query = new GetAlbumByIdQuery(id, pageNumber, pageSize);
             var result = await _mediator.Send(query);
             return result;
         }

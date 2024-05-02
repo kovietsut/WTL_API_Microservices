@@ -2,13 +2,16 @@
 using MediatR;
 using Serilog;
 using Microsoft.AspNetCore.Mvc;
+using MailKit.Search;
 
 
 namespace Manga.Application.Features.Albums.Queries
 {
-    public class GetAlbumByIdQuery(long id) : IRequest<IActionResult>
+    public class GetAlbumByIdQuery(long id, int? pageNumber, int? pageSize) : IRequest<IActionResult>
     {
         public long Id { get; private set; } = id;
+        public int? PageNumber { get; set; } = pageNumber;
+        public int? PageSize { get; set; } = pageSize;
     }
 
     public class GetAlbumByIdQueryHandler : IRequestHandler<GetAlbumByIdQuery, IActionResult>
@@ -26,7 +29,7 @@ namespace Manga.Application.Features.Albums.Queries
         public async Task<IActionResult> Handle(GetAlbumByIdQuery query, CancellationToken cancellationToken)
         {
             _logger.Information($"BEGIN: {MethodName} - Id: {query.Id}");
-            var album = await _albumRepository.GetAlbum(query.Id);
+            var album = await _albumRepository.GetAlbum(query.Id, query.PageNumber, query.PageSize);
             _logger.Information($"END: {MethodName} - Id: {query.Id}");
             return album;
         }

@@ -6,7 +6,7 @@ namespace Manga.Application.Common.Repositories.Interfaces
 {
     public interface IAlbumMangaRepository
     {
-        Task<List<long>> GetListAlbumManga(long albumId);
+        Task<IActionResult> GetListAlbumManga(long albumId, int? pageNumber, int? pageSize);
         Task<IActionResult> SaveToAlbum(SaveToAlbumDto model);
         Task<IActionResult> RemoveFromAlbum(long albumMangaId);
         Task<IActionResult> RemoveListFromAlbum(string albumMangaIds);

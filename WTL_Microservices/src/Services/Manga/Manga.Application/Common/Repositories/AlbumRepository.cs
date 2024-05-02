@@ -88,10 +88,10 @@ namespace Manga.Application.Common.Repositories
 
         public Task<AlbumEntity> GetAlbumById(long albumId) => FindByCondition(x => x.Id == albumId).SingleOrDefaultAsync();
 
-        public async Task<IActionResult> GetAlbum(long albumId)
+        public async Task<IActionResult> GetAlbum(long albumId, int? pageNumber, int? pageSize)
         {
             var album = await GetAlbumById(albumId);
-            var mangaList = await _albumMangaRepository.GetListAlbumManga(albumId);
+            var mangaList = await _albumMangaRepository.GetListAlbumManga(albumId, pageNumber, pageSize);
             if (album == null)
             {
                 return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Album does not exist");
