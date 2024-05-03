@@ -163,6 +163,7 @@ namespace Manga.API.Extensions
                 });
                 // Publish message, instead of sending it to a specific queue directly.
                 config.AddRequestClient<IChapterCreatedEvent>();
+                config.AddRequestClient<IAlbumCreatedEvent>();
             });
         }
 

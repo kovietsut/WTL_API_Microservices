@@ -13,6 +13,8 @@ using Shared.SeedWork;
 using Microsoft.EntityFrameworkCore;
 using Manga.Infrastructure.Entities;
 using ServiceStack;
+using EventBus.Messages.IntegrationEvents.Events;
+using MassTransit;
 
 namespace Manga.Application.Common.Repositories
 {
@@ -21,13 +23,17 @@ namespace Manga.Application.Common.Repositories
         private readonly ErrorCode _errorCodes;
         private readonly ISasTokenGenerator _sasTokenGenerator;
         private readonly IAlbumMangaRepository _albumMangaRepository;
+        private readonly IPublishEndpoint _publishEndpoint;
 
         public AlbumRepository(MangaContext dbContext, IUnitOfWork<MangaContext> unitOfWork,
-            IOptions<ErrorCode> errorCode, ISasTokenGenerator sasTokenGenerator, IAlbumMangaRepository albumMangaRepository) : base(dbContext, unitOfWork)
+            IOptions<ErrorCode> errorCode, ISasTokenGenerator sasTokenGenerator, IAlbumMangaRepository albumMangaRepository,
+            IPublishEndpoint publishEndpoint
+            ) : base(dbContext, unitOfWork)
         {
             _errorCodes = errorCode.Value;
             _sasTokenGenerator = sasTokenGenerator;
             _albumMangaRepository = albumMangaRepository;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<IActionResult> CreateAlbum(CreateAlbumDto model)
@@ -49,6 +55,13 @@ namespace Manga.Application.Common.Repositories
                     CoverImage = model.CoverImage != null ? model.CoverImage.Trim() : model.CoverImage,
                 };
                 await CreateAsync(album);
+                // Publish Message
+                var eventMessage = new AlbumCreatedEvent()
+                {
+                    Id = album.Id,
+                    UserId = album.CreatedBy
+                };
+                await _publishEndpoint.Publish(eventMessage);
                 return JsonUtil.Success(album);
             }
             catch (Exception ex)

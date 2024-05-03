@@ -25,12 +25,6 @@ namespace AccessControl.API.Repositories
         {
             try
             {
-                var validator = new GrantPermissionValidator();
-                var check = await validator.ValidateAsync(model);
-                if(!check.IsValid)
-                {
-                    return JsonUtil.Errors(StatusCodes.Status400BadRequest, _errorCodes.Status400.ConstraintViolation, check.Errors);
-                }
                 PermissionEntity permission = new()
                 {
                     IsEnabled = true,
