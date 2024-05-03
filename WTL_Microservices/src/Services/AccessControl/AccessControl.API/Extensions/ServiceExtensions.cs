@@ -1,7 +1,13 @@
 ﻿using AccessControl.API.Persistence;
+using AccessControl.API.Repositories;
+using AccessControl.API.Repositories.Interfaces;
+using Contracts.Domains.Interfaces;
+using Infrastructure.Common;
+using Infrastructure.Common.Repositories;
 using Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -115,7 +121,10 @@ namespace AccessControl.API.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>
         services
             .AddScoped<AccessControlContextSeed>()
+            .AddScoped(typeof(IRepositoryBase<,,>), typeof(RepositoryBase<,,>))
+            .AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>))
             .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
+            .AddScoped<IAccessControlRepository, AccessControlRepository>()
             ;
     }
 }
