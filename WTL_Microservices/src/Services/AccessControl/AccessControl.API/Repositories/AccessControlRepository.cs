@@ -65,7 +65,7 @@ namespace AccessControl.API.Repositories
             }
             catch (Exception ex)
             {
-                return JsonUtil.Error(StatusCodes.Status500InternalServerError, _errorCodes.Status500.APIServerError, ex.Message);
+                return JsonUtil.Error(StatusCodes.Status400BadRequest, _errorCodes.Status400.SystemError, ex.Message);
             }
         }
 
@@ -94,7 +94,25 @@ namespace AccessControl.API.Repositories
             }
             catch (Exception ex)
             {
-                return JsonUtil.Error(StatusCodes.Status500InternalServerError, _errorCodes.Status500.APIServerError, ex.Message);
+                return JsonUtil.Error(StatusCodes.Status400BadRequest, _errorCodes.Status400.SystemError, ex.Message);
+            }
+        }
+        public async Task<IActionResult> DeletePermission(long permissionId)
+        {
+            try
+            {
+                var currentPermission = await GetByIdAsync(permissionId);
+                if(currentPermission == null)
+                {
+                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Permission not found!");
+                }
+                currentPermission.IsEnabled = false;
+                await UpdateAsync(currentPermission);
+                return JsonUtil.Success(currentPermission.Id);
+            }
+            catch(Exception ex)
+            {
+                return JsonUtil.Error(StatusCodes.Status400BadRequest, _errorCodes.Status400.SystemError, ex.Message);
             }
         }
     }
