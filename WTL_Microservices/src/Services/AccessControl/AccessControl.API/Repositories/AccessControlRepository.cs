@@ -42,5 +42,34 @@ namespace AccessControl.API.Repositories
                 return JsonUtil.Error(StatusCodes.Status500InternalServerError, _errorCodes.Status500.APIServerError, ex.Message);
             }
         }
+
+        public async Task<IActionResult> UpdatePermission(long permissionId, UpdatePermissionDto model)
+        {
+            try
+            {
+                var validator = new UpdatePermissionValidator();
+                var check = await validator.ValidateAsync(model);
+                if (!check.IsValid)
+                {
+                    return JsonUtil.Errors(StatusCodes.Status400BadRequest, _errorCodes.Status400.ConstraintViolation, check.Errors);
+                }
+                var permission = await GetByIdAsync(permissionId);
+                if (permission == null)
+                {
+                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Permission not found!");
+                }
+                if(permission.ActionId == model.ActionId)
+                {
+                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "ActionId is number existed");
+                }
+                permission.ActionId = model.ActionId;
+                await UpdateAsync(permission);
+                return JsonUtil.Success(permission);
+            }
+            catch (Exception ex)
+            {
+                return JsonUtil.Error(StatusCodes.Status500InternalServerError, _errorCodes.Status500.APIServerError, ex.Message);
+            }
+        }
     }
 }

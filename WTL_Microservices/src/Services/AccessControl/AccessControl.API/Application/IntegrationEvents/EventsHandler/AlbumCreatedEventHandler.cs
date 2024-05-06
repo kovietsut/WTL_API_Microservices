@@ -25,7 +25,7 @@ namespace AccessControl.API.Application.IntegrationEvents.EventsHandler
         {
             var contextMessage = context.Message;
             var model = new GrantPermissionDto() {
-                ActionId = 1,
+                ActionId = 2, //write
                 AlbumId = contextMessage.Id,
                 UserId = (long)contextMessage.UserId,
                 MangaId = null,
