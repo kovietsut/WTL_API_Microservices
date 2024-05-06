@@ -29,7 +29,7 @@ namespace AccessControl.API.Application.IntegrationEvents.EventsHandler
                 AlbumId = contextMessage.Id,
                 UserId = (long)contextMessage.UserId,
                 MangaId = null,
-                Type = "Default"
+                Type = "Grant"
             };
             var result = _accessControlRepository.GrantPermission(model);
             _logger.Information("AlbumCreatedEvent consumed successfully. ", result);

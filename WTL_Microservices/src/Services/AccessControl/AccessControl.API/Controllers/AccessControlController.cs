@@ -19,6 +19,12 @@ namespace AccessControl.API.Controllers
             _accessControlRepository = accessControlRepository;
         }
 
+        [HttpGet("permissions/{albumId}")]
+        public async Task<IActionResult> GetListPermission(long albumId)
+        {
+            return await _accessControlRepository.GetListPermission(albumId);
+        }
+
         [HttpPost]
         public async Task<IActionResult> GrantPermission([FromBody] GrantPermissionDto model)
         {

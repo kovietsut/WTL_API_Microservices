@@ -4,6 +4,7 @@ using Contracts.Domains.Interfaces;
 using Infrastructure.Common.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Shared.DTOs;
 using Shared.DTOs.Permission;
 using Shared.SeedWork;
@@ -19,6 +20,31 @@ namespace AccessControl.API.Repositories
             IOptions<ErrorCode> errorCode) : base(dbContext, unitOfWork)
         {
             _errorCodes = errorCode.Value;
+        }
+
+        public async Task<IActionResult> GetListPermission(long albumId)
+        {
+            try
+            {
+                var permissions = FindAll().Where(x => x.AlbumId == albumId && x.IsEnabled == true)
+                    .Select(x => new
+                    {
+                        Id = x.Id,
+                        x.UserId,
+                        x.ActionId
+                        
+                    }).ToList();
+                if (permissions.IsNullOrEmpty())
+                {
+                    return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Empty list data");
+                }
+                return JsonUtil.Success(permissions);
+
+            }
+            catch(Exception ex)
+            {
+                return JsonUtil.Error(StatusCodes.Status400BadRequest, _errorCodes.Status400.SystemError, ex.Message);
+            }
         }
 
         public async Task<IActionResult> GrantPermission(GrantPermissionDto model)
