@@ -42,5 +42,11 @@ namespace AccessControl.API.Controllers
         {
             return await _accessControlRepository.DeletePermission(perrmissionId);
         }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteListPermission(string permissionIds)
+        {
+            return await _accessControlRepository.DeleteListPermission(permissionIds);
+        }
     }
 }

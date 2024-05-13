@@ -15,6 +15,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Shared.Common;
+using Shared.Common.Interfaces;
 using Shared.Configurations;
 using Shared.DTOs;
 using System.Text;
@@ -148,11 +150,13 @@ namespace AccessControl.API.Extensions
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>
         services
+            .AddHttpContextAccessor()
             .AddScoped<AccessControlContextSeed>()
             .AddScoped(typeof(IRepositoryBase<,,>), typeof(RepositoryBase<,,>))
             .AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>))
             .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
             .AddScoped<IAccessControlRepository, AccessControlRepository>()
+            .AddScoped<IBaseAuthService, BaseAuthService>()
             ;
     }
 }

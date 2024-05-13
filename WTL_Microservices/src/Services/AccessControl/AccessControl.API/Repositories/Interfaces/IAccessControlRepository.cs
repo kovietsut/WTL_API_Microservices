@@ -10,5 +10,6 @@ namespace AccessControl.API.Repositories.Interfaces
         Task<IActionResult> GrantPermission(GrantPermissionDto model);
         Task<IActionResult> UpdatePermission(long permissionId, UpdatePermissionDto model);
         Task<IActionResult> DeletePermission(long permissionId);
+        Task<IActionResult> DeleteListPermission(string permissionIds);
     }
 }
