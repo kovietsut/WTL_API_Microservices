@@ -1,6 +1,4 @@
-﻿using Manga.Application.Common.Repositories;
-using Manga.Application.Common.Repositories.Interfaces;
-using Manga.Application.Features.Mangas.Commands;
+﻿using Manga.Application.Common.Repositories.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;

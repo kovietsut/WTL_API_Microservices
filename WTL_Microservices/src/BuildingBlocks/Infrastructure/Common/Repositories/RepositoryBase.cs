@@ -50,7 +50,7 @@ namespace Infrastructure.Common.Repositories
         public IList<K> CreateList(IEnumerable<T> entities)
         {
             _dbContext.Set<T>().AddRange(entities);
-            return entities.Select(x => x.Id).ToList();
+            return entities.Select(x => x.Id).ToList(); 
         }
 
         public async Task<IList<K>> CreateListAsync(IEnumerable<T> entities)

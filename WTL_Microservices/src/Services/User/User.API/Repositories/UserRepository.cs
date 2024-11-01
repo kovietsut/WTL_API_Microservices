@@ -85,7 +85,7 @@ namespace User.API.Repositories
                     return JsonUtil.Success(elasticSearch);
                 }
 
-                var list = FindAll().Include(x => x.Role).Where(x => x.IsEnabled == true && (x.RoleId == roleId || roleId == null) &&
+                var list = FindAll().Where(x => x.IsEnabled == true && (x.RoleId == roleId || roleId == null) &&
                 (searchText == null || x.FullName.Contains(searchText.Trim()) || x.PhoneNumber.Contains(searchText.Trim())
                     || x.Address.Contains(searchText.Trim()) || x.Gender.Contains(searchText.Trim()) || x.Email.Contains(searchText.Trim())))
                     .Select(x => new

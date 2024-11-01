@@ -163,6 +163,7 @@ namespace Manga.API.Extensions
                 });
                 // Publish message, instead of sending it to a specific queue directly.
                 config.AddRequestClient<IChapterCreatedEvent>();
+                config.AddRequestClient<IAlbumCreatedEvent>();
             });
         }
 
@@ -207,6 +208,7 @@ namespace Manga.API.Extensions
             .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
             .AddScoped<IMangaRepository, MangaRepository>()
             .AddScoped<IAlbumRepository, AlbumRepository>()
+            .AddScoped<IAlbumMangaRepository, AlbumMangaRepository>()
             .AddScoped<IMangaGenreRepository, MangaGenreRepository>()
             .AddScoped<IGenreRepository, GenreRepository>()
             .AddScoped<IChapterRepository, ChapterRepository>()

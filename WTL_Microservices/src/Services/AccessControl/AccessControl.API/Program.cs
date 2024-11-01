@@ -17,6 +17,7 @@ try
     builder.Services.ConfigureSwagger();
     builder.Services.ConfigureErrorCode(builder.Configuration);
     builder.Services.ConfigureJWT(builder.Configuration);
+    builder.Services.ConfigureMassTransit();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);

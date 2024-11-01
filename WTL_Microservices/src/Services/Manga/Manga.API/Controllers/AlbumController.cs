@@ -1,14 +1,10 @@
 ﻿using Manga.Application.Features.Albums.Commands;
 using Manga.Application.Features.Albums.Queries;
-using Manga.Application.Features.Mangas.Commands;
-using Manga.Application.Features.Mangas.Queries;
-using Manga.Infrastructure.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DTOs.Album;
-using Shared.DTOs.Manga;
+using Shared.DTOs.AlbumManga;
 
 namespace Manga.API.Controllers
 {
@@ -35,9 +31,9 @@ namespace Manga.API.Controllers
 
         [AllowAnonymous]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(long id)
+        public async Task<IActionResult> GetById(long id, int? pageNumber, int? pageSize)
         {
-            var query = new GetAlbumByIdQuery(id);
+            var query = new GetAlbumByIdQuery(id, pageNumber, pageSize);
             var result = await _mediator.Send(query);
             return result;
         }
@@ -74,6 +70,34 @@ namespace Manga.API.Controllers
         {
             var query = new DeleteAlbumCommand(albumId);
             var result = await _mediator.Send(query);
+            return result;
+        }
+
+        [HttpPost("save-to-album")]
+        public async Task<IActionResult> SaveToAlbum([FromBody] SaveToAlbumDto model)
+        {
+            var query = new SaveToAlbumCommand()
+            {
+                AlbumId = model.AlbumId,
+                ListMangaId = model.ListMangaId,
+            };
+            var result = await _mediator.Send(query);
+            return result;
+        }
+
+        [HttpDelete("remove-from-album/{albumMangaId}")]
+        public async Task<IActionResult> RemoveFromAlbum(long albumMangaId)
+        {
+            var query = new RemoveFromAlbumCommand(albumMangaId);
+            var result = await _mediator.Send(query);
+            return result;
+        }
+
+        [HttpDelete("remove-list-from-album")]
+        public async Task<IActionResult> RemoveListFromAlbum(string albumMangaIds)
+        {
+            var query = new RemoveListAlbumCommand(albumMangaIds);
+            var result = await _mediator.Send(query); 
             return result;
         }
     }

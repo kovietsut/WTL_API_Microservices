@@ -1,10 +1,22 @@
-﻿using AccessControl.API.Persistence;
+﻿using AccessControl.API.Application.IntegrationEvents.EventsHandler;
+using AccessControl.API.Persistence;
+using AccessControl.API.Repositories;
+using AccessControl.API.Repositories.Interfaces;
+using Contracts.Domains.Interfaces;
+using EventBus.Messages.IntegrationEvents.Interfaces;
+using Infrastructure.Common;
+using Infrastructure.Common.Repositories;
 using Infrastructure.Extensions;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Shared.Common;
+using Shared.Common.Interfaces;
 using Shared.Configurations;
 using Shared.DTOs;
 using System.Text;
@@ -67,6 +79,30 @@ namespace AccessControl.API.Extensions
             return services;
         }
 
+        public static void ConfigureMassTransit(this IServiceCollection services)
+        {
+            var settings = services.GetOptions<EventBusSettings>(nameof(EventBusSettings));
+            if (settings == null || string.IsNullOrEmpty(settings.HostAddress) ||
+                string.IsNullOrEmpty(settings.HostAddress)) throw new ArgumentNullException("EventBusSettings is not configured!");
+
+            var mqConnection = new Uri(settings.HostAddress);
+
+            services.TryAddSingleton(KebabCaseEndpointNameFormatter.Instance);
+            services.AddMassTransit(config =>
+            {
+                config.AddConsumersFromNamespaceContaining<AlbumCreatedEventHandler>();
+                config.UsingRabbitMq((ctx, cfg) =>
+                {
+                    cfg.Host(mqConnection);
+                    //cfg.ReceiveEndpoint("created-album-queue", c =>
+                    //{
+                    //    c.ConfigureConsumer<AlbumCreatedEventHandler>(ctx);
+                    //});
+                    cfg.ConfigureEndpoints(ctx);
+                });
+            });
+        }
+
         public static void ConfigureHealthChecks(this IServiceCollection services)
         {
             var databaseSettings = services.GetOptions<DatabaseSettings>(nameof(DatabaseSettings));
@@ -114,8 +150,13 @@ namespace AccessControl.API.Extensions
 
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) =>
         services
+            .AddHttpContextAccessor()
             .AddScoped<AccessControlContextSeed>()
+            .AddScoped(typeof(IRepositoryBase<,,>), typeof(RepositoryBase<,,>))
+            .AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>))
             .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
+            .AddScoped<IAccessControlRepository, AccessControlRepository>()
+            .AddScoped<IBaseAuthService, BaseAuthService>()
             ;
     }
 }
