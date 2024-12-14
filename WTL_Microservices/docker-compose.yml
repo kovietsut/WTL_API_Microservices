@@ -1,0 +1,94 @@
+version: "3.9"
+
+services:
+  #database section
+  userdb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+
+  redisuserdb:
+    image: redis:alpine
+
+  redismangadb:
+    image: redis:alpine
+
+  mangadb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+
+  mangahangfiredb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+
+  accesscontroldb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+
+  #infrastructure section
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+
+  portainer:
+    image: portainer/portainer-ce
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.5
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.5
+
+  #microservices api section
+  user.api:
+    image: ${DOCKER_REGISTRY-}user-api:${PLATFORM:-linux}-${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Services/User/User.API/Dockerfile
+
+  manga.api:
+    image: ${DOCKER_REGISTRY-}manga-api:${PLATFORM:-linux}-${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Services/Manga/Manga.API/Dockerfile
+
+  azure.api:
+    image: ${DOCKER_REGISTRY-}azure-api:${PLATFORM:-linux}-${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Services/AzureBlob/AzureBlob.API/Dockerfile
+
+  elasticsearch.api:
+    image: ${DOCKER_REGISTRY-}elasticsearch-api:${PLATFORM:-linux}-${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Services/ElasticSearch/ElasticSearch.API/Dockerfile
+
+  accesscontrol.api:
+    image: ${DOCKER_REGISTRY-}accesscontrol-api:${PLATFORM:-linux}-${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Services/AccessControl/AccessControl.API/Dockerfile
+
+  webstatus:
+    image: ${DOCKER_REGISTRY-}webstatus:${PLATFORM:-linux}-${TAG:-latest}
+    build:
+      context: .
+      dockerfile: WebApps/WebHealthStatus/Dockerfile
+
+#network section
+networks:
+  default:
+    name: wtl_microservices
+    driver: bridge
+
+#volumes section
+volumes:
+  sqlserver_user_data:
+    name: sqlserver_user_data
+  sqlserver_manga_data:
+    name: sqlserver_manga_data
+  sqlserver_accesscontrol_data:
+    name: sqlserver_accesscontrol_data
+  sqlserver_manga_hangfire_data:
+    name: sqlserver_manga_hangfire_data
+  rabbitmq_data:
+    name: rabbitmq_data
+  portainer_data:
+    name: portainer_data
+  elasticsearch_data:
+    name: elasticsearch_data

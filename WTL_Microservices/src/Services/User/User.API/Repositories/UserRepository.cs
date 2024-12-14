@@ -46,46 +46,14 @@ namespace User.API.Repositories
         {
             try
             {
-                pageNumber ??= 1; pageSize ??= 10;
-                //var searchResponse = _elasticClient.Search<UserSearchResult>(s => s
-                //    .Index("users-search")
-                //    .Query(q => q
-                //        .Bool(b => b
-                //            .Must(
-                //                mu => mu.Term(t => t.Field(f => f.IsEnabled).Value(true)),
-                //                mu => roleId == null ? null : mu.Term(t => t.Field(f => f.RoleId).Value(roleId)),
-                //                mu => searchText == null ? null : mu.MultiMatch(m => m
-                //                    .Fields(f => f
-                //                        .Field(ff => ff.FullName)
-                //                        .Field(ff => ff.PhoneNumber)
-                //                        .Field(ff => ff.Address)
-                //                        .Field(ff => ff.Gender)
-                //                        .Field(ff => ff.EmailAddress)
-                //                    )
-                //                    .Query(searchText)
-                //                )
-                //            )
-                //        )
-                //    )
-                //    .From(((pageNumber ?? 1) - 1) * (pageSize ?? 10))
-                //    .Size(pageSize)
-                //    .Sort(srt => srt.Descending(x => x.Id))
-                //);
-                //var list = searchResponse.Documents;
-                //if (list != null)
-                //{
-                //    var totalRecords = list.Count();
-                //    return JsonUtil.Success(list, dataCount: totalRecords);
-                //}
-                //return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Empty List Data");
-
+                pageNumber ??= 1; pageSize ??= 10;                
                 var elasticSearch = await _elasticSearchUserHttpRepository.GetElasticSearchUser(pageNumber, pageSize);
                 if (elasticSearch != null && elasticSearch.Count > 0)
                 {
                     return JsonUtil.Success(elasticSearch);
                 }
 
-                var list = FindAll().Where(x => x.IsEnabled == true && (x.RoleId == roleId || roleId == null) &&
+                var list = FindAll(false, x => x.Role).Where(x => x.IsEnabled == true && (x.RoleId == roleId || roleId == null) &&
                 (searchText == null || x.FullName.Contains(searchText.Trim()) || x.PhoneNumber.Contains(searchText.Trim())
                     || x.Address.Contains(searchText.Trim()) || x.Gender.Contains(searchText.Trim()) || x.Email.Contains(searchText.Trim())))
                     .Select(x => new
