@@ -8,7 +8,7 @@ namespace Manga.Application.Common.Repositories.Interfaces
     {
         Task<MangaEntity> GetMangaById(long mangaId);
         Task<IActionResult> GetManga(long userId);
-        Task<IActionResult> GetListManga(int? pageNumber, int? pageSize, string? searchText);
+        Task<IActionResult> GetListManga(int? pageNumber, int? pageSize, string? searchText, string? type, string? interactionType);
         Task<IActionResult> CreateManga(CreateMangaDto model);
         Task<IActionResult> UpdateManga(long mangaId, UpdateMangaDto model);
         Task<IActionResult> RemoveSoftManga(long mangaId);

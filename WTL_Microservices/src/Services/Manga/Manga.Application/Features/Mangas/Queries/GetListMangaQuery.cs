@@ -7,11 +7,13 @@ using Shared.DTOs;
 
 namespace Manga.Application.Features.Mangas.Queries
 {
-    public class GetListMangaQuery(int? pageNumber, int? pageSize, string? searchText) : IRequest<IActionResult>
+    public class GetListMangaQuery(int? pageNumber, int? pageSize, string? searchText, string? type, string? interactionType) : IRequest<IActionResult>
     {
         public string? SearchText { get; set; } = searchText;
         public int? PageNumber { get; set;} = pageNumber;
         public int? PageSize { get; set;} = pageSize;
+        public string? Type { get; set;} = type;
+        public string? InteractionType { get; set;} = interactionType;
     }
 
     public class GetListMangaQueryHandler : IRequestHandler<GetListMangaQuery, IActionResult>
@@ -29,7 +31,7 @@ namespace Manga.Application.Features.Mangas.Queries
         public async Task<IActionResult> Handle(GetListMangaQuery query, CancellationToken cancellationToken)
         {
             _logger.Information($"BEGIN: {MethodName} - SearchText: {query.SearchText}");
-            var mangas = await _mangaRepository.GetListManga(query.PageNumber, query.PageSize, query.SearchText);
+            var mangas = await _mangaRepository.GetListManga(query.PageNumber, query.PageSize, query.SearchText, query.Type, query.InteractionType);
             _logger.Information($"END: {MethodName} - SearchText: {query.SearchText}");
             return mangas;
         }

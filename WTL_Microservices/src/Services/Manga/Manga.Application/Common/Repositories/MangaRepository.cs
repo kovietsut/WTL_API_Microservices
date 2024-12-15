@@ -70,12 +70,22 @@ namespace Manga.Application.Common.Repositories
             return JsonUtil.Success(mangaResult);
         }
 
-        public async Task<IActionResult> GetListManga(int? pageNumber, int? pageSize, string? searchText)
+        public async Task<IActionResult> GetListManga(int? pageNumber, int? pageSize, string? searchText, string? type, string? interactionType)
         {
             try
             {
-                pageNumber ??= 1; pageSize ??= 10;
-                var list = FindAll().Where(x => x.IsEnabled == true && (searchText == null || x.Name.Contains(searchText.Trim())))
+                pageNumber ??= 1;
+                pageSize ??= 10;
+
+                var query = FindAll().Where(x => x.IsEnabled == true &&
+                                                 (string.IsNullOrEmpty(searchText) || x.Name.Contains(searchText.Trim())) &&
+                                                 (string.IsNullOrEmpty(type) || x.Type.Contains(type.Trim())));
+                if (!string.IsNullOrEmpty(interactionType))
+                {
+                    query = query.Where(x => x.UserMangaInteractions.Any(interaction =>
+                        interaction.InteractionType == interactionType));
+                }
+                var list = query
                     .Select(x => new
                     {
                         MangaId = x.Id,
@@ -91,13 +101,17 @@ namespace Manga.Application.Common.Repositories
                         x.Language,
                         x.HasAdult,
                         Genres = x.MangasGenres.Select(item => item.Genre.Name).ToList(),
-                        FavoriteMangas = x.UserMangaInteractions.Count(fav => fav.MangaId == x.Id && fav.InteractionType == "Favorite")
+                        FavoriteMangas = x.UserMangaInteractions.Count(fav =>
+                            fav.MangaId == x.Id && fav.InteractionType == "Favorite"),
                     });
-                var listData = list.Skip(((int)pageNumber - 1) * (int)pageSize)
-                    .Take((int)pageSize).OrderByDescending(x => x.MangaId).ToList();
-                if (list != null)
+                var listData = list
+                    .OrderByDescending(x => x.MangaId)
+                    .Skip(((int)pageNumber - 1) * (int)pageSize)
+                    .Take((int)pageSize)
+                    .ToList();
+                if (list.Any())
                 {
-                    var totalRecords = list.Count();
+                    var totalRecords = await query.CountAsync();
                     return JsonUtil.Success(listData, dataCount: totalRecords);
                 }
                 return JsonUtil.Error(StatusCodes.Status404NotFound, _errorCodes.Status404.NotFound, "Empty List Data");
@@ -107,6 +121,7 @@ namespace Manga.Application.Common.Repositories
                 return JsonUtil.Error(StatusCodes.Status401Unauthorized, _errorCodes.Status401.Unauthorized, ex.Message);
             }
         }
+
 
         public async Task<IActionResult> CreateManga(CreateMangaDto model)
         {
